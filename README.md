@@ -1,5 +1,7 @@
 # DataAgent
 
+[![CI](https://github.com/KelpKernel/dataagent/actions/workflows/ci.yml/badge.svg)](https://github.com/KelpKernel/dataagent/actions/workflows/ci.yml)
+
 **不是让 LLM 写 SQL，而是让它在写错的时候知道自己是错的。**
 
 一个带护栏的自然语言查数 Agent。数据用 Olist 巴西电商库（9 张表 / 99,441 单 / 198 MB SQLite），

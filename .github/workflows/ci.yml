@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Byte-compile
+        run: python -m compileall -q src evals tests
+
+      - name: Unit tests
+        run: python -m pytest tests -q
+
+      - name: Guardrail smoke test
+        # 单测已覆盖，这里单独跑一遍是为了让"护栏"在 CI 日志里可见：
+        # 写操作被拒、行数被截断、无限递归被超时中断。
+        run: |
+          PYTHONPATH=src python - <<'PY'
+          import sqlite3, tempfile, pathlib
+          from dataagent.sandbox import Sandbox
+
+          db = pathlib.Path(tempfile.mkdtemp()) / "t.sqlite"
+          conn = sqlite3.connect(db)
+          conn.executescript(
+              "create table t(x int); insert into t values (1),(2),(3);"
+          )
+          conn.commit()
+          conn.close()
+
+          box = Sandbox(db, row_limit=2, timeout_s=0.5)
+
+          assert box.run("select * from t").ok, "正常查询应通过"
+          assert box.run("select * from t").truncated, "行数应被截断到上限"
+
+          blocked = box.run("delete from t")
+          assert not blocked.ok and blocked.error_kind == "blocked", "写操作必须被 AST 闸门拦住"
+
+          runaway = box.run(
+              "with recursive c(i) as (select 1 union all select i+1 from c) "
+              "select count(*) from c"
+          )
+          assert not runaway.ok and runaway.error_kind == "timeout", "无限递归应被超时中断"
+
+          assert box.run("select count(*) from t").ok, "中断后连接仍应可用"
+          print("guardrails: write-blocked / row-limited / timeout-interrupted — all OK")
+          PY
