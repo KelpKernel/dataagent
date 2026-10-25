@@ -161,6 +161,21 @@ class LLMClient:
         self._last_call = time.monotonic()
 
 
+def _clean_content(text: str) -> str:
+    """清洗疑似流式 delta 残渣。
+
+    智谱在 tool_calls 响应里会把 `{"index":0,"finish_reason":...}` 这类
+    流式结构塞进 message.content，直接保留会污染最终答案，也会让数字溯源
+    把 JSON 里的数字当成"答案内容"。实测这条脏数据能把答案变成
+    "…我接下来要走的是{"index":0,...}"。
+    """
+    for marker in ('{"index":', '{"id":"call', '{"id": "call'):
+        position = text.find(marker)
+        if position > 0:
+            return text[:position].rstrip()
+    return text
+
+
 def _parse_turn(data: dict, config: Config) -> AssistantTurn:
     choice = (data.get("choices") or [{}])[0]
     message = choice.get("message") or {}
@@ -185,7 +200,7 @@ def _parse_turn(data: dict, config: Config) -> AssistantTurn:
     )
 
     return AssistantTurn(
-        content=message.get("content") or "",
+        content=_clean_content(message.get("content") or ""),
         tool_calls=calls,
         usage=usage,
     )

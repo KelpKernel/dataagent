@@ -97,11 +97,18 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--gold-only", action="store_true")
     parser.add_argument("--model")
+    parser.add_argument("--prompt", help="提示词版本，默认 v0.3.0（可用 v0.2.0 复现基线）")
+    parser.add_argument("--tag", help="结果文件名标记，例如 flash-v030")
     parser.add_argument("--max-steps", type=int, default=8)
     parser.add_argument("--out", default=str(ROOT / "evals" / "results"))
     args = parser.parse_args()
 
-    config = Config.from_env(db_path=args.db, model=args.model)
+    config = Config.from_env(
+        db_path=args.db,
+        model=args.model,
+        prompt_version=args.prompt,
+        force_reflect=None if args.prompt is None else args.prompt != "v0.2.0",
+    )
     questions = load_questions(Path(args.questions))
     if args.limit:
         questions = questions[: args.limit]
@@ -158,7 +165,8 @@ def main() -> int:
             agent.close()
 
         stamp = time.strftime("%Y%m%d-%H%M%S")
-        out_file = out_dir / f"run-{stamp}.json"
+        suffix = f"-{args.tag}" if args.tag else ""
+        out_file = out_dir / f"run-{stamp}{suffix}.json"
         summary = {
             "model": config.model,
             "prompt_version": config.prompt_version,

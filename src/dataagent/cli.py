@@ -24,6 +24,7 @@ def _setup_console() -> None:
 def _config(args):
     from dataagent.config import Config
 
+    prompt = getattr(args, "prompt", None)
     return Config.from_env(
         db_path=args.db,
         model=getattr(args, "model", None),
@@ -31,6 +32,9 @@ def _config(args):
         row_limit=getattr(args, "row_limit", None),
         query_timeout_s=getattr(args, "timeout", None),
         use_cache=False if getattr(args, "no_cache", False) else None,
+        prompt_version=prompt,
+        # 复现 v0.2.0 基线时要关掉 v0.3.0 引入的强制反思，否则不是同一个实验条件
+        force_reflect=None if prompt is None else prompt != "v0.2.0",
     )
 
 
@@ -58,6 +62,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_common(p_ask)
     p_ask.add_argument("question")
     p_ask.add_argument("--model", help="模型名，默认 glm-4-flash")
+    p_ask.add_argument("--prompt", help="提示词版本，默认 v0.3.0（可用 v0.2.0 复现基线）")
     p_ask.add_argument("--max-steps", type=int, default=None)
     p_ask.add_argument("--row-limit", type=int, default=None)
     p_ask.add_argument("--timeout", type=float, default=None)

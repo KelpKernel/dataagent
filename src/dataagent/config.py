@@ -15,6 +15,21 @@ from dataagent import PROMPT_VERSION
 DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4"
 DEFAULT_MODEL = "glm-4-flash"
 
+# provider 注册表：按模型名自动选 base_url 与 key 所在环境变量。
+# 做模型对照实验时只需 --model，不用手改 .env。
+PROVIDERS: dict[str, dict] = {
+    "zhipu": {
+        "base_url": "https://open.bigmodel.cn/api/paas/v4",
+        "api_key_env": "DATAAGENT_API_KEY",
+        "models": ("glm-4-flash", "glm-4-flash-250414", "glm-4-air", "glm-4-plus"),
+    },
+    "deepseek": {
+        "base_url": "https://api.deepseek.com",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "models": ("deepseek-chat", "deepseek-reasoner", "deepseek-flash"),
+    },
+}
+
 # 每 1K token 单价（人民币元）。免费模型记 0。
 # 只用于横向对照，不追求与厂商账单精确一致。
 PRICE_TABLE: dict[str, tuple[float, float]] = {
@@ -22,8 +37,26 @@ PRICE_TABLE: dict[str, tuple[float, float]] = {
     "glm-4-flash-250414": (0.0, 0.0),
     "glm-4-air": (0.0005, 0.0005),
     "glm-4-plus": (0.005, 0.005),
-    "deepseek-chat": (0.001, 0.002),
+    # DeepSeek 按缓存未命中价估算，实际账单可能更低（命中前缀缓存时）
+    "deepseek-chat": (0.002, 0.008),
+    "deepseek-reasoner": (0.002, 0.008),
+    "deepseek-flash": (0.002, 0.008),
 }
+
+
+def resolve_endpoint(model: str) -> tuple[str, str]:
+    """按模型名解析 (base_url, api_key)；未注册的模型走 DATAAGENT_* 环境变量。
+
+    注意：不能用 DATAAGENT_BASE_URL 覆盖已注册 provider 的 base_url，
+    否则 .env 里为智谱写的 base_url 会把 DeepSeek 的请求也发到智谱去。
+    """
+    for spec in PROVIDERS.values():
+        if model in spec["models"]:
+            return spec["base_url"], os.environ.get(spec["api_key_env"], "")
+    return (
+        os.environ.get("DATAAGENT_BASE_URL", DEFAULT_BASE_URL),
+        os.environ.get("DATAAGENT_API_KEY", ""),
+    )
 
 
 def load_dotenv(path: Path) -> None:
@@ -55,6 +88,8 @@ class Config:
     work_dir: Path = field(default_factory=lambda: Path(".dataagent"))
     prompt_version: str = PROMPT_VERSION
     use_cache: bool = True
+    # v0.3.0 起的强制反思干预；复现 v0.2.0 基线时关掉
+    force_reflect: bool = True
 
     @property
     def trace_db(self) -> Path:
@@ -75,11 +110,15 @@ class Config:
             raise ValueError(
                 "缺少数据库路径：用 --db 指定，或设置 DATAAGENT_DB / .env 中的 DATAAGENT_DB"
             )
+        model = overrides.get("model") or os.environ.get(
+            "DATAAGENT_MODEL", DEFAULT_MODEL
+        )
+        base_url, api_key = resolve_endpoint(model)
         params = {
             "db_path": Path(resolved_db).expanduser().resolve(),
-            "api_key": os.environ.get("DATAAGENT_API_KEY", ""),
-            "base_url": os.environ.get("DATAAGENT_BASE_URL", DEFAULT_BASE_URL),
-            "model": os.environ.get("DATAAGENT_MODEL", DEFAULT_MODEL),
+            "api_key": api_key,
+            "base_url": base_url,
+            "model": model,
         }
         params.update({k: v for k, v in overrides.items() if v is not None})
         return cls(**params)

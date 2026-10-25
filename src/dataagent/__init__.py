@@ -5,4 +5,4 @@
 
 __version__ = "0.1.0"
 # 改提示词必须同步升版本号：缓存 key 与 trace 统计都按它聚合
-PROMPT_VERSION = "v0.2.0"
+PROMPT_VERSION = "v0.3.0"

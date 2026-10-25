@@ -4,9 +4,12 @@
 把控制流握在自己手里才能看清「模型在哪一步走错、为什么」。
 框架对比实验留到 README 附录（用 LangGraph 复刻一版跑同一套评测）。
 
-循环里有一个非标准但关键的设计：答案数字溯源（verify）。
-模型拿到正确 SQL 结果后仍会心算错（实测把 625/99441 算成 6.25%），
-所以最终答案要过一道「数字能否在查询结果里找到出处」的检查，不过就打回重算一次。
+循环里有两个非标准但关键的设计：
+1. 答案数字溯源（verify）：模型拿到正确 SQL 结果后仍会心算错
+   （实测把 625/99441 算成 6.25%），所以答案里的数字必须在查询结果里找到出处。
+2. 强制反思（force_reflect，v0.3.0 起）：trace 统计显示护栏命中里 61.6% 是
+   repeated_call——模型卡在重复调用上，而不是 SQL 写错。只提示"换写法"无效，
+   所以连续重复两次后直接注入一条强制指令，逼它先说明根因再换路径。
 """
 
 from __future__ import annotations
@@ -15,24 +18,11 @@ from dataclasses import dataclass, field
 
 from dataagent.config import Config
 from dataagent.llm import LLMClient, Usage
+from dataagent.prompts import FORCE_REFLECT, system_prompt
 from dataagent.sandbox import Sandbox
 from dataagent.tools import TOOLS, ToolOutcome, ToolBox, default_schema_text
 from dataagent.trace import TraceStore
 from dataagent.verify import collect_from_values, unsourced_numbers
-
-SYSTEM_PROMPT = """你是电商数据分析助手，通过只读 SQL 查询一个 Olist 巴西电商数据库。
-
-工作规则：
-1. 不确定列名、枚举值或日期格式时，先用 list_tables / describe_table / sample_rows 确认，不要猜。
-2. 每条 SQL 只查下一步真正需要的信息；不要一次查全部，也不要把原始大表整表拉出来。
-3. 遇到 [empty_result] 或 [suspicious_zero]：先怀疑自己的过滤条件（枚举值大小写、时间范围、join 键），
-   用 sample_rows 核对后再改；不要原样重复提交同一条 SQL。
-4. 任何比率、百分比、同比变化，必须让 SQL 直接算出来（例如
-   select round(100.0 * sum(case when ... then 1 else 0 end) / count(*), 2)），
-   绝对不要自己心算相除——实测模型心算会错一个数量级。
-5. 最终回答用中文：先给结论数字，再用一句话说明口径（例如是否排除 canceled 订单、时间范围如何界定）。
-6. 不要编造数据。查询失败且无法修复时，直接说明失败原因，不要给推测数字。
-"""
 
 _RETRY_TEMPLATE = """你上一条回答里有这些数字无法在查询结果中找到出处：{missing}。
 
@@ -49,6 +39,7 @@ class AgentResult:
     usage: Usage = field(default_factory=Usage)
     error_kinds: list[str] = field(default_factory=list)
     unsourced: list[str] = field(default_factory=list)
+    interventions: int = 0
     run_id: str = ""
 
     @property
@@ -79,6 +70,7 @@ class DataAgent:
         self.toolbox = ToolBox(
             self.sandbox, schema_text=self.schema_text, row_limit=config.row_limit
         )
+        self.rules = system_prompt(config.prompt_version)
 
     def run(self, question: str) -> AgentResult:
         run_id = self.tracer.start(
@@ -87,7 +79,7 @@ class DataAgent:
         messages: list[dict] = [
             {
                 "role": "system",
-                "content": f"{SYSTEM_PROMPT}\n\n【数据库结构】\n{self.schema_text}",
+                "content": f"{self.rules}\n\n【数据库结构】\n{self.schema_text}",
             },
             {"role": "user", "content": question},
         ]
@@ -98,6 +90,8 @@ class DataAgent:
         answer = ""
         unsourced: list[str] = []
         verify_retried = False
+        stuck = 0
+        interventions = 0
         step = 0
 
         for step in range(1, self.config.max_steps + 1):
@@ -164,6 +158,7 @@ class DataAgent:
                 if outcome.result is not None and outcome.result.ok:
                     for row in outcome.result.rows:
                         source_values.extend(collect_from_values(list(row)))
+                stuck = stuck + 1 if outcome.error_kind == "repeated_call" else 0
                 self.tracer.add_step(
                     kind="tool",
                     name=call.name,
@@ -177,6 +172,24 @@ class DataAgent:
                     flag = f"[{outcome.error_kind}]" if outcome.error_kind else ""
                     head = outcome.text.splitlines()[0][:88] if outcome.text else ""
                     print(f"      → {call.name} {flag} {head}")
+
+            # 连续两次重复 → 强制反思，而不是继续提示
+            if self.config.force_reflect and stuck >= 2:
+                interventions += 1
+                error_kinds.append("force_reflect")
+                messages.append(
+                    {"role": "user", "content": FORCE_REFLECT.format(n=stuck)}
+                )
+                self.tracer.add_step(
+                    kind="intervention",
+                    name="force_reflect",
+                    result_preview=f"连续重复 {stuck} 次，注入反思指令",
+                    ok=True,
+                    error_kind="force_reflect",
+                )
+                if self.verbose:
+                    print(f"      ⚡ 强制反思（连续重复 {stuck} 次）")
+                stuck = 0
         else:
             answer = (
                 f"（已达最大步数 {self.config.max_steps}，未能收敛。"
@@ -199,6 +212,7 @@ class DataAgent:
             usage=total,
             error_kinds=error_kinds,
             unsourced=unsourced,
+            interventions=interventions,
             run_id=run_id,
         )
 
