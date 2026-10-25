@@ -26,7 +26,8 @@ jobs:
         run: python -m compileall -q src evals tests
 
       - name: Unit tests
-        run: python -m pytest tests -q
+        # src/ 布局：不设 PYTHONPATH 会在收集阶段 import 失败（pytest 退出码 2）
+        run: PYTHONPATH=src python -m pytest tests -q
 
       - name: Guardrail smoke test
         # 单测已覆盖，这里单独跑一遍是为了让"护栏"在 CI 日志里可见：
