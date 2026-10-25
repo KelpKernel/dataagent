@@ -99,6 +99,10 @@ def main() -> int:
     parser.add_argument("--model")
     parser.add_argument("--prompt", help="提示词版本，默认 v0.3.0（可用 v0.2.0 复现基线）")
     parser.add_argument("--tag", help="结果文件名标记，例如 flash-v030")
+    parser.add_argument(
+        "--work-dir",
+        help="trace 与缓存目录，默认 .dataagent；对照实验要用独立目录，否则 trace 混在一起",
+    )
     parser.add_argument("--max-steps", type=int, default=8)
     parser.add_argument("--out", default=str(ROOT / "evals" / "results"))
     args = parser.parse_args()
@@ -106,6 +110,7 @@ def main() -> int:
     config = Config.from_env(
         db_path=args.db,
         model=args.model,
+        work_dir=Path(args.work_dir) if args.work_dir else None,
         prompt_version=args.prompt,
         force_reflect=None if args.prompt is None else args.prompt != "v0.2.0",
     )

@@ -229,18 +229,23 @@ class DataAgent:
 
 
 def _assistant_message(turn) -> dict:
-    return {
-        "role": "assistant",
-        "content": turn.content or "",
-        "tool_calls": [
+    """构造 assistant 消息。
+
+    tool_calls 为空时必须**不带这个字段**：智谱容忍 `tool_calls: []`，
+    但 DeepSeek 会直接 400（"empty array. Expected an array with minimum length 1"）。
+    多 provider 兼容的第一课：别把宽松实现的容忍当成标准。
+    """
+    message: dict = {"role": "assistant", "content": turn.content or ""}
+    if turn.tool_calls:
+        message["tool_calls"] = [
             {
                 "id": call.id,
                 "type": "function",
                 "function": {"name": call.name, "arguments": call.arguments},
             }
             for call in turn.tool_calls
-        ],
-    }
+        ]
+    return message
 
 
 def _safe_args(raw: str):

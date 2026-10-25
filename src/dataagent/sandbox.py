@@ -129,7 +129,11 @@ def validate_sql(sql: str, allowed_tables: set[str] | None = None) -> str:
                     "unknown_table",
                 )
 
-    return stmt.sql(dialect="sqlite")
+    # 不做方言转写（原本这里会 return stmt.sql(dialect="sqlite")）：
+    # 返回值从来没被使用（沙箱执行的是原始 SQL），而转写遇到 DATEDIFF 这类
+    # SQLite 不支持的函数会抛 UnsupportedError，一次解析就能打断整条 agent 循环。
+    # 校验归校验，转写归转写。
+    return text
 
 
 class Sandbox:

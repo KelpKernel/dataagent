@@ -2,7 +2,7 @@
 __pycache__/
 *.pyc
 .env
-.dataagent/
+.dataagent*/
 evals/results/
 *.sqlite
 *.sqlite-journal
