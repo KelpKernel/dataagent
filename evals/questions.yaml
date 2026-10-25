@@ -1,0 +1,84 @@
+- id: q01
+  difficulty: easy
+  question: 一共有多少个订单？
+  ref_sql: select count(*) from orders
+
+- id: q02
+  difficulty: easy
+  question: 一共有多少个不同的真实客户（同一客户多次下单只算一次）？
+  ref_sql: select count(distinct customer_unique_id) from customers
+
+- id: q03
+  difficulty: easy
+  question: 被取消（canceled）的订单占全部订单的比例是多少？请给百分比，保留两位小数。
+  ref_sql: select round(100.0 * sum(case when order_status = 'canceled' then 1 else 0 end) / count(*), 2) from orders
+
+- id: q04
+  difficulty: medium
+  question: 2018 年每个月的订单量是多少？按月份升序给出。
+  ref_sql: select substr(order_purchase_timestamp, 1, 7) as ym, count(*) from orders where order_purchase_timestamp like '2018%' group by ym order by ym
+
+- id: q05
+  difficulty: medium
+  question: 各订单状态（order_status）分别有多少订单？按数量降序。
+  ref_sql: select order_status, count(*) n from orders group by 1 order by n desc
+
+- id: q06
+  difficulty: medium
+  question: 哪种支付方式（payment_type）的订单数最多？有多少笔？
+  ref_sql: select payment_type, count(*) n from order_payments group by 1 order by n desc limit 1
+
+- id: q07
+  difficulty: medium
+  question: 平均每条订单的评价分数是多少？保留两位小数。
+  ref_sql: select round(avg(review_score), 2) from order_reviews
+
+- id: q08
+  difficulty: hard
+  question: 复购客户（下过 2 单及以上的真实客户）占全部客户的比例是多少？给百分比，保留两位小数。
+  ref_sql: |
+    select round(100.0 * sum(case when n >= 2 then 1 else 0 end) / count(*), 2)
+    from (select customer_unique_id, count(*) n from customers join orders using(customer_id)
+          group by 1)
+
+- id: q09
+  difficulty: hard
+  question: 配送延迟（实际送达时间晚于承诺日期）的订单，差评率（评分 1-2 分）是多少？给百分比。
+  ref_sql: |
+    select round(100.0 * sum(case when r.review_score <= 2 then 1 else 0 end) / count(*), 2)
+    from orders o
+    join order_reviews r on r.order_id = o.order_id
+    where o.order_delivered_customer_date is not null
+      and o.order_delivered_customer_date > o.order_estimated_delivery_date
+
+- id: q10
+  difficulty: hard
+  question: 哪个州的客户贡献的支付金额最高？给出该州和总金额（保留两位小数）。
+  ref_sql: |
+    select c.customer_state, round(sum(p.payment_value), 2) total
+    from customers c
+    join orders o on o.customer_id = c.customer_id
+    join order_payments p on p.order_id = o.order_id
+    group by 1 order by total desc limit 1
+
+- id: q11
+  difficulty: ambiguous
+  question: 销量最好的商品类目是什么？请说明你用什么口径衡量"销量"。
+  ref_sql: |
+    select coalesce(t.product_category_name_english, p.product_category_name) cat,
+           count(*) n
+    from order_items i
+    join products p on p.product_id = i.product_id
+    left join category_translation t on t.product_category_name = p.product_category_name
+    group by 1 order by n desc limit 1
+
+- id: q12
+  difficulty: ambiguous
+  question: 各州的平均客单价是多少？列出前 5 名并说明客单价的口径。
+  ref_sql: |
+    select c.customer_state,
+           round(sum(p.payment_value) / count(distinct o.order_id), 2) aov
+    from customers c
+    join orders o on o.customer_id = c.customer_id
+    join order_payments p on p.order_id = o.order_id
+    group by 1 order by aov desc limit 5
