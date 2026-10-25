@@ -130,6 +130,17 @@ _RESULT_HINTS = {
     "suspicious_ratio": _RATIO_HINT,
 }
 
+_REPEAT_HINT_SQL = (
+    "这条 SQL 与之前提交过的完全相同，不会得到不同结果。必须换写法："
+    "先确认要用的列到底属于哪张表（例如 customer_unique_id 只在 customers 表，不在 orders 表），"
+    "再改写查询结构，不要原样重试。"
+)
+
+_REPEAT_HINT_DEFAULT = (
+    "你已经用完全相同的参数调用过这个工具，返回结果不会变。"
+    "请基于上面已有的返回信息继续推理，不要再重复获取同样的信息。"
+)
+
 
 def self_check(result: QueryResult, sql: str = "") -> str | None:
     """结果自检：返回值得提示模型的 error_kind，None 表示结果看起来正常。"""
@@ -184,6 +195,7 @@ class ToolBox:
         self.row_limit = row_limit
         self._schema_text = schema_text
         self._cache: dict[str, str] = {}
+        self._calls: set[tuple[str, str]] = set()
 
     # ---------- 分发 ----------
     def call(self, name: str, raw_args: str) -> ToolOutcome:
@@ -212,7 +224,26 @@ class ToolBox:
                 text=f"未知工具：{name}。可用工具：list_tables / describe_table / sample_rows / run_sql",
                 error_kind="unknown_tool",
             )
-        return handler(args)
+
+        # 重复调用检测放在分发层：实测 trace 里模型既能对着报错重复同一条 SQL，
+        # 也能连续三次 describe_table 同一张表，两种都得拦。
+        signature = self._signature(name, args)
+        repeated = signature in self._calls
+        self._calls.add(signature)
+
+        outcome = handler(args)
+        if repeated:
+            # 优先级最高：卡住比单次报错更值得告诉模型
+            outcome.error_kind = "repeated_call"
+            hint = _REPEAT_HINT_SQL if name == "run_sql" else _REPEAT_HINT_DEFAULT
+            outcome.text = f"{outcome.text}\n[repeated_call] {hint}"
+        return outcome
+
+    @staticmethod
+    def _signature(name: str, args: dict) -> tuple[str, str]:
+        if name == "run_sql":
+            return name, " ".join(str(args.get("sql", "")).lower().split())
+        return name, json.dumps(args, ensure_ascii=False, sort_keys=True)
 
     # ---------- 工具实现 ----------
     def _list_tables(self, _args: dict) -> ToolOutcome:
@@ -307,9 +338,9 @@ class ToolBox:
         else:
             lines.append(result.to_table())
             lines.append(f"（{len(result.rows)} 行 / {result.elapsed_ms:.0f}ms）")
-            hint = _RESULT_HINTS.get(kind or "")
-            if hint:
-                lines.append(f"[{kind}] {hint}")
+        hint = _RESULT_HINTS.get(kind or "")
+        if hint:
+            lines.append(f"[{kind}] {hint}")
         return ToolOutcome(
             ok=result.ok,
             text="\n".join(lines),
