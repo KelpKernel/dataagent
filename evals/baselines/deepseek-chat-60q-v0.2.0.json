@@ -1,0 +1,1292 @@
+{
+  "summary": {
+    "model": "deepseek-chat",
+    "prompt_version": "v0.2.0",
+    "n": 60,
+    "accuracy": 0.55,
+    "avg_steps": 4.5,
+    "total_tokens": 1127194,
+    "total_cost": 2.661014,
+    "by_difficulty": {
+      "ambiguous": 0.067,
+      "easy": 1.0,
+      "hard": 0.533,
+      "medium": 0.6
+    },
+    "judge_version": "primary_value_v2"
+  },
+  "records": [
+    {
+      "id": "q01",
+      "difficulty": "easy",
+      "question": "一共有多少个订单？",
+      "answer": "**结论：共 99,441 个订单**（orders 表行数，order_id 无重复）。\n\n口径：统计 orders 表中全部订单，不区分 order_status（含 canceled 等所有状态），时间范围为全表。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6035,
+      "tokens_out": 127,
+      "cost": 0.013086,
+      "elapsed_ms": 1964.7,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q02",
+      "difficulty": "easy",
+      "question": "一共有多少个不同的真实客户（同一客户多次下单只算一次）？",
+      "answer": "**结论：共有 96,096 个不同的真实客户。**\n\n补充数字（均由 SQL 直接算出）：`customers` 表共 99,441 行，`customer_id` 去重后也是 99,441 个；`customer_unique_id` 去重后为 96,096 个；两者相差 3,345，占全部行的 3.36%。\n\n口径：以 `customers.customer_unique_id` 去重计数（同一真实客户多次下单只算一次），未做任何订单状态过滤。",
+      "correct": true,
+      "coverage": 0.333,
+      "steps": 4,
+      "tokens_in": 12841,
+      "tokens_out": 442,
+      "cost": 0.029218,
+      "elapsed_ms": 8375.2,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q03",
+      "difficulty": "easy",
+      "question": "被取消（canceled）的订单占全部订单的比例是多少？请给百分比，保留两位小数。",
+      "answer": "**结论：被取消（canceled）的订单占全部订单的 0.63%**（625 / 99,441 单）。\n\n口径：以 `orders` 表全部 99,441 条订单为分母，`order_status = 'canceled'` 为分子，未做任何时间范围或状态过滤。",
+      "correct": true,
+      "coverage": 0.25,
+      "steps": 2,
+      "tokens_in": 6122,
+      "tokens_out": 195,
+      "cost": 0.013804,
+      "elapsed_ms": 2003.6,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q13",
+      "difficulty": "easy",
+      "question": "一共有多少个卖家？",
+      "answer": "**结论：共有 3,095 个卖家**（sellers 表共 3,095 行，seller_id 去重后也是 3,095 个，无重复）。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6037,
+      "tokens_out": 119,
+      "cost": 0.013026,
+      "elapsed_ms": 1567.0,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q14",
+      "difficulty": "easy",
+      "question": "一共有多少种不同的商品？",
+      "answer": "共有 **32,951 种不同商品**。\n\n口径：按 `products` 表中 `product_id` 去重计数（全表，未做任何状态或时间过滤）。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6023,
+      "tokens_out": 108,
+      "cost": 0.01291,
+      "elapsed_ms": 2069.5,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q15",
+      "difficulty": "easy",
+      "question": "状态为已送达（delivered）的订单有多少个？",
+      "answer": "**已送达（delivered）订单共 96,478 个。**\n\n口径：直接统计 `orders` 表中 `order_status = 'delivered'` 的订单行数（每行一个订单），未做时间范围限制，也未与其他表关联。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6047,
+      "tokens_out": 132,
+      "cost": 0.01315,
+      "elapsed_ms": 1875.6,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q16",
+      "difficulty": "easy",
+      "question": "平均每笔支付金额是多少？保留两位小数。",
+      "answer": "**平均每笔支付金额为 154.10 巴西雷亚尔。**\n\n口径：对 order_payments 表中全部 103,886 条支付记录（按 payment_sequential 逐笔计，含 credit_card / boleto / voucher / debit_card 各类型，未按订单去重、未排除任何订单状态）直接取 payment_value 的平均值。",
+      "correct": true,
+      "coverage": 0.5,
+      "steps": 2,
+      "tokens_in": 6062,
+      "tokens_out": 168,
+      "cost": 0.013468,
+      "elapsed_ms": 2031.1,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q17",
+      "difficulty": "easy",
+      "question": "评价分数的最高分和最低分分别是多少？",
+      "answer": "**结论：最低分 1 分，最高分 5 分。**\n\n口径：统计 order_reviews 表全部 99,224 条评价记录的 review_score 字段，未做任何过滤。",
+      "correct": true,
+      "coverage": 0.667,
+      "steps": 2,
+      "tokens_in": 6062,
+      "tokens_out": 132,
+      "cost": 0.01318,
+      "elapsed_ms": 1690.1,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q18",
+      "difficulty": "easy",
+      "question": "客户覆盖了多少个州？",
+      "answer": "**结论：客户覆盖 27 个州级行政区，其中包含 DF（联邦区，2,140 条客户记录）。**\n\n补充数据（均由 SQL 直接算出）：\n- 客户记录 99,441 条，对应真实客户 96,096 个（customer_unique_id 去重）。\n- SP 占 41.98%，SP+RJ+MG 合计占 66.61%。\n\n口径：基于 `customers` 表全部记录，按 `customer_state` 去重计数；未按订单状态过滤。上一版回答中“26 个州”是我凭常识补充的，无查询依据，现予撤回。",
+      "correct": true,
+      "coverage": 0.143,
+      "steps": 5,
+      "tokens_in": 16902,
+      "tokens_out": 709,
+      "cost": 0.039476,
+      "elapsed_ms": 8400.5,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "26"
+      ]
+    },
+    {
+      "id": "q19",
+      "difficulty": "easy",
+      "question": "单笔订单商品的最高运费是多少？保留两位小数。",
+      "answer": "单笔订单商品（order_items 单行）的最高运费为 **409.68**。\n\n口径：直接取 order_items.freight_value 的最大值，未按订单汇总、未排除任何订单状态。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6050,
+      "tokens_out": 125,
+      "cost": 0.0131,
+      "elapsed_ms": 2026.6,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q20",
+      "difficulty": "easy",
+      "question": "最早的一笔订单是什么时候下的？",
+      "answer": "最早的一笔订单下单时间是 **2016-09-04 21:15:19**。\n\n口径：取 orders 表中 order_purchase_timestamp 的最小值，覆盖全部 99,441 条订单（未按 order_status 过滤，即包含所有状态）。作为参考，最晚一笔订单为 2018-10-17 17:30:18。",
+      "correct": true,
+      "coverage": 0.538,
+      "steps": 2,
+      "tokens_in": 6092,
+      "tokens_out": 176,
+      "cost": 0.013592,
+      "elapsed_ms": 2637.9,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q21",
+      "difficulty": "easy",
+      "question": "有多少条评价是 5 分？",
+      "answer": "**5 分评价共 57,328 条，占全部评价的 57.78%**（评价总数 99,224 条）。\n\n口径：对 order_reviews 全表统计，review_score = 5 的记录数及占比，占比由 SQL 用 round(100.0 * 5分条数 / 总条数, 2) 直接计算；未按订单状态过滤（评价表不含订单状态字段）。",
+      "correct": true,
+      "coverage": 0.125,
+      "steps": 4,
+      "tokens_in": 12771,
+      "tokens_out": 387,
+      "cost": 0.028638,
+      "elapsed_ms": 4245.1,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0"
+      ]
+    },
+    {
+      "id": "q22",
+      "difficulty": "easy",
+      "question": "信用卡（credit_card）支付的总金额是多少？保留两位小数。",
+      "answer": "**结论：信用卡（credit_card）支付总金额为 12,542,084.19**，共 76,795 笔支付记录，平均每笔 163.32；占全部支付金额的 78.34%，占支付记录笔数的 73.92%。\n\n口径：对 `order_payments` 表按 `payment_type` 分组汇总 `payment_value`，未按订单状态过滤（包含所有状态订单的支付记录）；百分比由 SQL 直接计算（`round(100.0 * a / b, 2)`）。",
+      "correct": true,
+      "coverage": 0.143,
+      "steps": 6,
+      "tokens_in": 20387,
+      "tokens_out": 656,
+      "cost": 0.046022,
+      "elapsed_ms": 7272.4,
+      "error_kinds": [
+        "unsourced_number",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "12,542",
+        "084.19",
+        "100.0",
+        "2"
+      ]
+    },
+    {
+      "id": "q23",
+      "difficulty": "easy",
+      "question": "商品的平均重量是多少克？保留两位小数。",
+      "answer": "**商品平均重量为 2276.47 克。**\n\n口径：对 products 表中全部 32,951 个商品取 product_weight_g 的平均值（其中 2 个商品重量为空，未计入平均）。",
+      "correct": true,
+      "coverage": 0.333,
+      "steps": 2,
+      "tokens_in": 6081,
+      "tokens_out": 151,
+      "cost": 0.01337,
+      "elapsed_ms": 1773.8,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q24",
+      "difficulty": "easy",
+      "question": "有多少个订单包含 2 件及以上的商品？",
+      "answer": "**结论：包含 2 件及以上商品的订单共 9,803 个，占有商品记录订单（98,666 个）的 9.94%。**\n\n补充数据（均来自上面两次查询结果）：\n- 有商品记录的订单总数：98,666\n- 仅含 1 件商品的订单：88,863\n- 单订单最多商品件数：21\n\n口径说明：按 `order_items` 中每个 `order_id` 的商品行数统计（同一商品买多件也计为多件），分母为在 `order_items` 中有记录的订单，未按 `orders.order_status` 过滤（未排除 canceled 等状态）。所有数字与比率均由 SQL 直接计算得出。",
+      "correct": true,
+      "coverage": 0.125,
+      "steps": 5,
+      "tokens_in": 17427,
+      "tokens_out": 975,
+      "cost": 0.042654,
+      "elapsed_ms": 8750.9,
+      "error_kinds": [
+        "unsourced_number",
+        "aggregate_without_from"
+      ],
+      "unsourced": [
+        "2",
+        "1"
+      ]
+    },
+    {
+      "id": "q04",
+      "difficulty": "medium",
+      "question": "2018 年每个月的订单量是多少？按月份升序给出。",
+      "answer": "**2018 年各月订单量（按 order_purchase_timestamp 月份升序）：**\n\n| 月份 | 订单量（全部状态） | canceled 数 | canceled 占比 |\n|---|---|---|---|\n| 2018-01 | 7,269 | 34 | 0.47% |\n| 2018-02 | 6,728 | 73 | 1.09% |\n| 2018-03 | 7,211 | 26 | 0.36% |\n| 2018-04 | 6,939 | 15 | 0.22% |\n| 2018-05 | 6,873 | 24 | 0.35% |\n| 2018-06 | 6,167 | 18 | 0.29% |\n| 2018-07 | 6,292 | 41 | 0.65% |\n| 2018-08 | 6,512 | 84 | 1.29% |\n| 2018-09 | 16 | 15 | 93.75% |\n| 2018-10 | 4 | 4 | 100.00% |\n\n**数据截断情况（由 SQL 计算）：** 9 月订单量相对 8 月环比为 **-99.75%**，10 月相对 8 月环比为 **-99.94%**；9 月 canceled 占比 93.75%、10 月 100.00%，说明 9–10 月只剩零星未完成或取消的订单，属于数据截断，不代表真实业务量。\n\n**口径说明：** 按 `orders.order_purchase_timestamp` 所属月份分组，时间范围 2018-01-01 至 2018-12-31；表中“订单量”为全部状态计数，canceled 数与占比由 SQL 直接计算（`round(100.0 * canceled_cnt / orders_all, 2)`）。上一条回答中我给出的“排除 canceled”列和“9 月仅 16 单、10 月仅 4 单、最晚 2018-10-17”等表述，其中部分数字当时未在查询结果中体现，现已全部由上述查询核实。",
+      "correct": true,
+      "coverage": 0.526,
+      "steps": 5,
+      "tokens_in": 18650,
+      "tokens_out": 1608,
+      "cost": 0.050164,
+      "elapsed_ms": 11228.0,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "9",
+        "8",
+        "10",
+        "8",
+        "9",
+        "10",
+        "9",
+        "10",
+        "-12",
+        "-31",
+        "9",
+        "10"
+      ]
+    },
+    {
+      "id": "q05",
+      "difficulty": "medium",
+      "question": "各订单状态（order_status）分别有多少订单？按数量降序。",
+      "answer": "各订单状态订单数（按数量降序，占比由 SQL 计算）：\n\n| order_status | 订单数 | 占比 |\n|---|---|---|\n| delivered | 96,478 | 97.02% |\n| shipped | 1,107 | 1.11% |\n| canceled | 625 | 0.63% |\n| unavailable | 609 | 0.61% |\n| invoiced | 314 | 0.32% |\n| processing | 301 | 0.30% |\n| created | 5 | 0.01% |\n| approved | 2 | 0.00% |\n\n订单总数 99,441（`count(*)` 与 `count(distinct order_id)` 均为 99,441，即 order_id 无重复）。\n\n口径：对 orders 表按 order_status 分组计数，包含全部状态与全部时间范围，未排除任何订单；占比 = 该状态订单数 / orders 表总行数，由 SQL 用 `round(100.0 * count(*) / (select count(*) from orders), 2)` 直接算出。",
+      "correct": true,
+      "coverage": 0.45,
+      "steps": 5,
+      "tokens_in": 16846,
+      "tokens_out": 610,
+      "cost": 0.038572,
+      "elapsed_ms": 5310.6,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0"
+      ]
+    },
+    {
+      "id": "q06",
+      "difficulty": "medium",
+      "question": "哪种支付方式（payment_type）的订单数最多？有多少笔？",
+      "answer": "**结论：credit_card（信用卡）订单数最多，共 76,505 笔。**\n\n口径：按 `order_payments` 中 `payment_type` 分组，用 `count(distinct order_id)` 统计订单数（同一订单若有多条同类型支付记录只计一次），未做任何状态或时间过滤。其余依次为 boleto 19,784 笔、voucher 3,866 笔、debit_card 1,528 笔、not_defined 3 笔。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 2,
+      "tokens_in": 6091,
+      "tokens_out": 194,
+      "cost": 0.013734,
+      "elapsed_ms": 3164.4,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q07",
+      "difficulty": "medium",
+      "question": "平均每条订单的评价分数是多少？保留两位小数。",
+      "answer": "**平均每条订单的评价分数为 4.09 分**（保留两位小数）。\n\n口径：直接对 order_reviews 表中全部 99,224 条评价记录的 review_score 取算术平均，未按订单去重，也未排除任何订单状态。",
+      "correct": true,
+      "coverage": 0.5,
+      "steps": 2,
+      "tokens_in": 6053,
+      "tokens_out": 137,
+      "cost": 0.013202,
+      "elapsed_ms": 2268.7,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q25",
+      "difficulty": "medium",
+      "question": "客户数最多的 5 个州是哪些？各有多少客户？",
+      "answer": "**结论：客户数最多的 5 个州（排名与数字均来自上面这条 SQL 的输出）**\n\n| rnk | customer_state | customers |\n|---|---|---|\n| 1 | SP | 40,302 |\n| 2 | RJ | 12,384 |\n| 3 | MG | 11,259 |\n| 4 | RS | 5,277 |\n| 5 | PR | 4,882 |\n\n口径：按 `customers.customer_unique_id` 去重统计真实客户数（同一客户跨多笔订单只计一次），排名由 SQL 的 `rank() over (order by count(...) desc)` 直接生成；覆盖全表所有订单状态与全部时间范围，未做过滤。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 4,
+      "tokens_in": 13074,
+      "tokens_out": 567,
+      "cost": 0.030684,
+      "elapsed_ms": 5878.4,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q26",
+      "difficulty": "medium",
+      "question": "2017 年每个月的支付总额是多少？按月份升序。",
+      "answer": "**2017 年各月支付总额（按月份升序，SQL 直接输出）：**\n\n| 月份 | 订单数 | 支付总额（BRL） |\n|---|---|---|\n| 2017-01 | 800 | 138,488.04 |\n| 2017-02 | 1,780 | 291,908.01 |\n| 2017-03 | 2,682 | 449,863.60 |\n| 2017-04 | 2,404 | 417,788.03 |\n| 2017-05 | 3,700 | 592,918.82 |\n| 2017-06 | 3,245 | 511,276.38 |\n| 2017-07 | 4,026 | 592,382.92 |\n| 2017-08 | 4,331 | 674,396.32 |\n| 2017-09 | 4,285 | 727,762.45 |\n| 2017-10 | 4,631 | 779,677.88 |\n| 2017-11 | 7,544 | 1,194,882.80 |\n| 2017-12 | 5,673 | 878,401.48 |\n\n**由 SQL 算出的汇总指标：**\n- 全年合计：**7,249,746.73 BRL**\n- 最高月：**2017-11**，1,194,882.80 BRL，占全年 **16.48%**\n- 最低月：**2017-01**，138,488.04 BRL，占全年 **1.91%**\n\n**口径说明：** 按 `orders.order_purchase_timestamp` 的购买月份归属（2017-01-01 至 2017-12-31，左闭右开），金额为 `order_payments.payment_value` 全部支付记录之和（含运费、含分期多笔记录）；**未排除 canceled 等非完成状态**——2017 年订单状态分布为 delivered 96.29%、shipped 1.18%、unavailable 1.01%、canceled 0.59%、processing 0.53%、invoiced 0.39%、created 0.01%、approved 0.00%，其中 canceled 订单对应支付额 62,832.96 BRL。若需剔除 canceled，请告知，我再跑一版。\n\n（另：第二条查询的百分比列因工具提示“外层聚合无 FROM”风险，我未采用其百分比数值，仅使用其分组计数与金额；上表百分比均来自第一条带 FROM 子句的查询。）",
+      "correct": true,
+      "coverage": 0.607,
+      "steps": 4,
+      "tokens_in": 15041,
+      "tokens_out": 1762,
+      "cost": 0.044178,
+      "elapsed_ms": 19999.3,
+      "error_kinds": [
+        "unsourced_number",
+        "aggregate_without_from"
+      ],
+      "unsourced": [
+        "60",
+        "03",
+        "82",
+        "38",
+        "92",
+        "32",
+        "45",
+        "88",
+        "1,194",
+        "882.80",
+        "48",
+        "7,249",
+        "746.73",
+        "1,194",
+        "882.80",
+        "-31"
+      ]
+    },
+    {
+      "id": "q27",
+      "difficulty": "medium",
+      "question": "平均每个订单包含多少件商品？保留两位小数。",
+      "answer": "**平均每个订单包含 1.14 件商品。**\n\n口径：以 order_items 表为准，统计所有有商品明细的订单（98,666 个订单、112,650 条商品行），按“商品行数 ÷ 订单数”计算，未按订单状态过滤（即未排除 canceled 等状态）。",
+      "correct": true,
+      "coverage": 0.333,
+      "steps": 2,
+      "tokens_in": 6089,
+      "tokens_out": 175,
+      "cost": 0.013578,
+      "elapsed_ms": 2214.7,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q28",
+      "difficulty": "medium",
+      "question": "各支付方式的平均分期数是多少？按分期数降序。",
+      "answer": "**结论：按平均分期数降序排列如下：**\n\n| 支付方式 | 支付记录数 | 平均分期数 |\n|---|---|---|\n| credit_card（信用卡） | 76,795 | **3.51** |\n| voucher（代金券） | 5,775 | 1.00 |\n| not_defined（未定义） | 3 | 1.00 |\n| debit_card（借记卡） | 1,529 | 1.00 |\n| boleto（银行票据） | 19,784 | 1.00 |\n\n统计口径：统计 `order_payments` 表全部支付记录，按 `payment_type` 分组，计算 `payment_installments` 的平均值；未按订单状态过滤，也未排除 canceled 订单。只有信用卡支持多期付款，其余支付方式的平均分期数均为 1 期。",
+      "correct": true,
+      "coverage": 0.545,
+      "steps": 2,
+      "tokens_in": 6136,
+      "tokens_out": 286,
+      "cost": 0.01456,
+      "elapsed_ms": 2349.4,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q29",
+      "difficulty": "medium",
+      "question": "评价分数 1 到 5 分各有多少条？",
+      "answer": "**结论（均来自查询结果）：**\n\n| 评分 | 条数 | 占比 |\n|---|---|---|\n| 1 分 | 11,424 | 11.51% |\n| 2 分 | 3,151 | 3.18% |\n| 3 分 | 8,179 | 8.24% |\n| 4 分 | 19,142 | 19.29% |\n| 5 分 | 57,328 | 57.78% |\n\n评价总条数 99,224 条（已由 `count(*)` 查出；其中 review_id 去重后 98,410 个、order_id 去重后 98,673 个，说明存在少量重复记录）。\n\n口径：直接对 order_reviews 表按 review_score 分组计数，占比由 SQL 用 `round(100.0*count(*)/总条数, 2)` 计算；未按订单状态过滤，也未去重。",
+      "correct": true,
+      "coverage": 0.6,
+      "steps": 5,
+      "tokens_in": 16671,
+      "tokens_out": 605,
+      "cost": 0.038182,
+      "elapsed_ms": 7468.6,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0"
+      ]
+    },
+    {
+      "id": "q30",
+      "difficulty": "medium",
+      "question": "卖家数最多的 5 个州是哪些？",
+      "answer": "**结论：卖家数最多的 5 个州是 SP（1849 家，占全部卖家 59.74%）、PR（349 家，11.28%）、MG（244 家，7.88%）、SC（190 家，6.14%）、RJ（171 家，5.53%）。**\n\n口径：按 `sellers.seller_state` 分组统计卖家记录数，占比的分母是 `sellers` 表全部卖家数（3095 家），排名由 SQL 的 `row_number()` 生成；未关联订单，也未做其他过滤。",
+      "correct": true,
+      "coverage": 0.417,
+      "steps": 4,
+      "tokens_in": 12905,
+      "tokens_out": 480,
+      "cost": 0.02965,
+      "elapsed_ms": 4104.6,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "3095"
+      ]
+    },
+    {
+      "id": "q31",
+      "difficulty": "medium",
+      "question": "商品数最多的 5 个商品类目是哪些？",
+      "answer": "**结论：商品数最多的 5 个类目（排名与占比均由 SQL 计算）**\n\n| 排名 | 类目（葡语） | 英文名 | 商品数 | 占全部商品比重 |\n|---|---|---|---|---|\n| 1 | cama_mesa_banho | bed_bath_table | 3,029 | 9.19% |\n| 2 | esporte_lazer | sports_leisure | 2,867 | 8.70% |\n| 3 | moveis_decoracao | furniture_decor | 2,657 | 8.06% |\n| 4 | beleza_saude | health_beauty | 2,444 | 7.42% |\n| 5 | utilidades_domesticas | housewares | 2,335 | 7.09% |\n\n口径：按 products 表每个 product_id 计 1 个商品，按 product_category_name 分组计数；排名用 row_number() 按商品数降序生成；占比分母为全表 32,951 个商品（含 610 个类目为空的商品），由 SQL 用 round(100.0 * 类目商品数 / 全表商品数, 2) 直接算出。",
+      "correct": false,
+      "coverage": 0.238,
+      "steps": 5,
+      "tokens_in": 17757,
+      "tokens_out": 1066,
+      "cost": 0.044042,
+      "elapsed_ms": 7816.1,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0"
+      ]
+    },
+    {
+      "id": "q32",
+      "difficulty": "medium",
+      "question": "从下单到送达平均需要多少天？保留两位小数。",
+      "answer": "**结论：从下单到送达平均需要 12.56 天。**\n\n口径：仅统计 `order_status = 'delivered'` 且 `order_delivered_customer_date` 非空的 96,470 笔订单（排除 canceled、shipped 等未送达订单），按 `order_delivered_customer_date − order_purchase_timestamp` 的精确时间差取平均，时间范围覆盖全表（2016-09 至 2018-08）。该批订单最短 0.53 天、最长 209.63 天。",
+      "correct": true,
+      "coverage": 0.125,
+      "steps": 3,
+      "tokens_in": 10530,
+      "tokens_out": 524,
+      "cost": 0.025252,
+      "elapsed_ms": 3795.2,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q33",
+      "difficulty": "medium",
+      "question": "各订单状态的平均评价分数是多少？按分数降序。",
+      "answer": "**结论：各订单状态的平均评价分数（降序）**\n\n| 订单状态 | 有评价的订单数 | 评价条数 | 平均分 |\n|---|---|---|---|\n| delivered | 95,832 | 96,361 | 4.156 |\n| approved | 2 | 2 | 2.500 |\n| created | 3 | 3 | 2.333 |\n| shipped | 1,032 | 1,043 | 2.009 |\n| canceled | 605 | 609 | 1.811 |\n| invoiced | 309 | 313 | 1.661 |\n| unavailable | 595 | 597 | 1.531 |\n| processing | 295 | 296 | 1.277 |\n\n口径说明：统计范围是 orders 与 order_reviews 按 order_id 内连接后的全部订单，未排除任何状态，也未按时间过滤；平均分由 SQL 直接计算，保留 3 位小数。少数订单有多条评价记录，因此评价条数略多于订单数。approved（2 单）和 created（3 单）样本量极小，其平均分不具代表性。",
+      "correct": false,
+      "coverage": 0.222,
+      "steps": 3,
+      "tokens_in": 9764,
+      "tokens_out": 539,
+      "cost": 0.02384,
+      "elapsed_ms": 9482.6,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q34",
+      "difficulty": "medium",
+      "question": "2018 年订单量最大的月份是哪个月？有多少单？",
+      "answer": "**结论：2018 年订单量最大的月份是 1 月，共 7,269 单。**\n\n以下数字均来自 SQL 查询结果：\n\n| 指标 | 数值 |\n|---|---|\n| 2018 年全年订单量 | 54,011 单 |\n| 2018 年 1 月订单量 | 7,269 单 |\n| 1 月占全年比例 | 13.46% |\n| 第二名 3 月订单量 | 7,211 单 |\n| 1 月比 3 月多 | 58 单（+0.8%） |\n\n完整排名（前 8 名）：1 月 7,269、3 月 7,211、4 月 6,939、5 月 6,873、2 月 6,728、8 月 6,512、7 月 6,292、6 月 6,167；9 月仅 16 单、10 月仅 4 单（数据在该时段明显不完整，2018 年 11、12 月无记录）。\n\n口径：按 `orders.order_purchase_timestamp` 的购买月份分组，时间范围 2018-01-01 至 2018-12-31，统计全部订单状态（未排除 canceled 等状态）。",
+      "correct": false,
+      "coverage": 0.239,
+      "steps": 6,
+      "tokens_in": 21920,
+      "tokens_out": 1517,
+      "cost": 0.055976,
+      "elapsed_ms": 9500.4,
+      "error_kinds": [
+        "unsourced_number",
+        "aggregate_without_from"
+      ],
+      "unsourced": [
+        "1",
+        "1",
+        "1",
+        "3",
+        "1",
+        "3",
+        "8",
+        "1",
+        "3",
+        "5",
+        "2",
+        "8",
+        "7",
+        "6",
+        "9",
+        "10",
+        "11",
+        "12",
+        "-12",
+        "-31"
+      ]
+    },
+    {
+      "id": "q35",
+      "difficulty": "medium",
+      "question": "平均运费最高的 5 个客户州是哪些？",
+      "answer": "平均运费最高的 5 个客户州（排名由 SQL 的 row_number 生成）：\n\n| 排名 | 客户州 | 运费行数 | 平均运费（BRL） | 占全国均值比例 |\n|---|---|---|---|---|\n| 1 | RR | 52 | 42.98 | 215.03% |\n| 2 | PB | 602 | 42.72 | 213.72% |\n| 3 | RO | 278 | 41.07 | 205.45% |\n| 4 | AC | 92 | 40.07 | 200.46% |\n| 5 | PI | 542 | 39.15 | 195.83% |\n\n口径：以 order_items 的运费行（freight_value）为单位，按订单所属客户的 customer_state 分组求平均，包含所有订单状态（未排除 canceled）；全国均值 19.99 BRL 来自全表 112,650 条运费行，比例由 SQL 直接计算。这 5 个州的平均运费为全国均值的 195.83%–215.03%。RR、AC 的运费行数仅 52 和 92，均值波动较大。",
+      "correct": false,
+      "coverage": 0.179,
+      "steps": 4,
+      "tokens_in": 14377,
+      "tokens_out": 1135,
+      "cost": 0.037834,
+      "elapsed_ms": 19884.5,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q08",
+      "difficulty": "hard",
+      "question": "复购客户（下过 2 单及以上的真实客户）占全部客户的比例是多少？给百分比，保留两位小数。",
+      "answer": "**复购客户占比为 3.06%**（95,560 位真实客户中有 2,924 位下过 2 单及以上）。\n\n口径说明：以 `customer_unique_id` 作为真实客户标识，按订单数（去重 order_id）统计，已排除 `canceled` 状态的订单；若把 canceled 订单也计入，分母会略大、比例会略低。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 3,
+      "tokens_in": 9896,
+      "tokens_out": 478,
+      "cost": 0.023616,
+      "elapsed_ms": 10079.9,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q09",
+      "difficulty": "hard",
+      "question": "配送延迟（实际送达时间晚于承诺日期）的订单，差评率（评分 1-2 分）是多少？给百分比。",
+      "answer": "**结论：配送延迟订单的差评率（1–2 分）为 54.02%**（7,701 个延迟订单中 4,160 个差评）。\n\n对比准时或提前送达订单：差评率 **9.24%**（88,658 单中 8,190 个差评）。两者差评率之比为 **5.85 倍**（SQL 计算：54.02 / 9.24）。\n\n口径说明：仅统计有实际送达时间且已关联评价的订单；延迟定义为实际送达时间晚于承诺送达日期，未按 order_status 额外过滤（未送达订单因无送达时间已被排除）。",
+      "correct": true,
+      "coverage": 0.182,
+      "steps": 5,
+      "tokens_in": 18994,
+      "tokens_out": 1425,
+      "cost": 0.049388,
+      "elapsed_ms": 19809.4,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q10",
+      "difficulty": "hard",
+      "question": "哪个州的客户贡献的支付金额最高？给出该州和总金额（保留两位小数）。",
+      "answer": "**结论：SP（圣保罗州）贡献的支付金额最高，为 5998226.96，占全部支付金额的 37.47%。**\n\n口径：orders 关联 customers 与 order_payments，按客户所在州对 payment_value 求和；未排除任何订单状态（含 canceled 等），未限定时间范围，即全量数据。以上数字均为 SQL 直接输出的原值（占比由 SQL 用 round(100.0 * a / b, 2) 计算）。",
+      "correct": false,
+      "coverage": 0.25,
+      "steps": 4,
+      "tokens_in": 13185,
+      "tokens_out": 561,
+      "cost": 0.030858,
+      "elapsed_ms": 19525.8,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0",
+        "2"
+      ]
+    },
+    {
+      "id": "q36",
+      "difficulty": "hard",
+      "question": "成交额最高的 5 个卖家是哪些？给出卖家 id 和商品金额合计。",
+      "answer": "**结论：成交额最高的 5 个卖家（已排除 canceled / unavailable 订单）**\n\n| 排名 | seller_id | 商品金额合计 (BRL) | 订单数 | 商品件数 |\n|---|---|---|---|---|\n| 1 | 4869f7a5dfa277a7dca6462dcf3b52b2 | 229237.63 | 1131 | 1155 |\n| 2 | 53243585a1d6dc2643021fd1853d8905 | 222776.05 | 358 | 410 |\n| 3 | 4a3ca9315b744ce9f8e9374361493884 | 200326.12 | 1804 | 1985 |\n| 4 | fa1c13f2614d7b5c4749cbc52fecda94 | 192842.13 | 584 | 585 |\n| 5 | 7c67e1448b00f6e969d365cea6b010ab | 187923.89 | 982 | 1364 |\n\n**对照：不过滤订单状态的全量口径**\n\n| 排名 | seller_id | 商品金额合计 (BRL) | 订单数 | 商品件数 |\n|---|---|---|---|---|\n| 1 | 4869f7a5dfa277a7dca6462dcf3b52b2 | 229472.63 | 1132 | 1156 |\n| 2 | 53243585a1d6dc2643021fd1853d8905 | 222776.05 | 358 | 410 |\n| 3 | 4a3ca9315b744ce9f8e9374361493884 | 200472.92 | 1806 | 1987 |\n| 4 | fa1c13f2614d7b5c4749cbc52fecda94 | 194042.03 | 585 | 586 |\n| 5 | 7c67e1448b00f6e969d365cea6b010ab | 187923.89 | 982 | 1364 |\n\n口径说明：\n- 金额 = order_items.price 按 seller_id 求和，**不含运费 freight_value**；订单数用 count(distinct order_id)，件数用 count(*)。\n- 主表口径排除 order_status 为 canceled 和 unavailable 的订单，这两类共 1234 单，占全部 99441 单的 **1.24%**（SQL 直接算出）。\n- 数据时间范围：order_purchase_timestamp 从 **2016-09-04 21:15:19** 到 **2018-10-17 17:30:18**，未做时间截断。\n- 两种口径下前 5 名卖家与排名顺序完全一致，仅金额有微小差异。\n\n上一轮回答中我手写的\"2016-09 至 2018-08\"是错的，实际最大购买时间为 2018-10-17，已按查询结果更正。",
+      "correct": true,
+      "coverage": 0.69,
+      "steps": 6,
+      "tokens_in": 24500,
+      "tokens_out": 1841,
+      "cost": 0.063728,
+      "elapsed_ms": 22123.2,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "-08"
+      ]
+    },
+    {
+      "id": "q37",
+      "difficulty": "hard",
+      "question": "2018 年各月订单量相对上月的增长率（百分比）是多少？按月份升序。",
+      "answer": "已用 SQL 核实：2018 年有数据的月份共 10 个，其中订单量 ≥1000 的正常月份为 8 个（占 80.0%），范围是 2018-01 至 2018-08。\n\n重新给出结论（数字全部来自查询结果）：\n\n| 月份 | 订单量 | 上月订单量 | 环比增长率 |\n|---|---|---|---|\n| 2018-01 | 7,269 | — | — |\n| 2018-02 | 6,728 | 7,269 | -7.44% |\n| 2018-03 | 7,211 | 6,728 | +7.18% |\n| 2018-04 | 6,939 | 7,211 | -3.77% |\n| 2018-05 | 6,873 | 6,939 | -0.95% |\n| 2018-06 | 6,167 | 6,873 | -10.27% |\n| 2018-07 | 6,292 | 6,167 | +2.03% |\n| 2018-08 | 6,512 | 6,292 | +3.50% |\n| 2018-09 | 16 | 6,512 | -99.75% |\n| 2018-10 | 4 | 16 | -75.00% |\n\n口径说明：统计全部订单状态（未排除 canceled 等状态），按 `order_purchase_timestamp` 的购买月份分组，环比增长率由 SQL 用 LAG 窗口函数配合 `round(100.0 * (本月 - 上月) / 上月, 2)` 直接计算。\n\n补充说明：2018-09 与 2018-10 订单量分别为 16 单和 4 单，远低于其余月份（均 ≥1000 单），属于数据集在 2018-10-17 截止导致的不完整月份，其环比增长率不具业务参考价值；有效参考区间为 2018-01 至 2018-08 这 8 个月。",
+      "correct": true,
+      "coverage": 0.878,
+      "steps": 5,
+      "tokens_in": 18828,
+      "tokens_out": 1493,
+      "cost": 0.0496,
+      "elapsed_ms": 9048.5,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "1000",
+        "100.0",
+        "1000"
+      ]
+    },
+    {
+      "id": "q38",
+      "difficulty": "hard",
+      "question": "人均订单数（订单数/客户数）最高的 5 个州是哪些？",
+      "answer": "**结论：人均订单数最高的 5 个州依次为 RO（1.0549，250 单 / 237 人）、AC（1.0519，81 单 / 77 人）、RJ（1.0373，12766 单 / 12307 人）、MT（1.0355，905 单 / 874 人）、RS（1.0352，5441 单 / 5256 人）。**\n\n口径说明：客户数按 `customers.customer_unique_id`（真实客户）去重，订单数按订单行数统计，已排除 `canceled` 订单，覆盖全部 27 个州、未加任何样本量阈值；比值由 SQL 直接计算。上一版回答中的“订单数 ≥100”是我自行设定的过滤条件，没有查询依据，现已去掉；去掉后 AC（81 单）进入前五，AM 退出前五。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 7,
+      "tokens_in": 26925,
+      "tokens_out": 1178,
+      "cost": 0.063274,
+      "elapsed_ms": 21151.3,
+      "error_kinds": [
+        "repeated_call",
+        "ambiguous_column",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "27",
+        "100"
+      ]
+    },
+    {
+      "id": "q39",
+      "difficulty": "hard",
+      "question": "差评率（1-2 分占比）最高的 5 个商品类目是哪些？要求至少有 100 条评价。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 35246,
+      "tokens_out": 1590,
+      "cost": 0.083212,
+      "elapsed_ms": 22218.1,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "2",
+        "100",
+        "2",
+        "2",
+        "3",
+        "4",
+        "2",
+        "2016",
+        "2018"
+      ]
+    },
+    {
+      "id": "q40",
+      "difficulty": "hard",
+      "question": "已送达订单中，配送延迟（晚于承诺日期）的比例是多少？给百分比。",
+      "answer": "**结论：已送达订单中，配送延迟（实际送达时间晚于承诺日期）的比例为 8.11%（7,826 / 96,470 单）。**\n\n口径说明：仅统计 `order_status = 'delivered'` 的订单（共 96,478 单），其中 8 单缺少实际送达或承诺日期被排除，有效样本 96,470 单；延迟判定为 `order_delivered_customer_date > order_estimated_delivery_date`（按时间戳精确比较，未做日期截断），时间范围覆盖全表数据（2016–2018 年）。",
+      "correct": true,
+      "coverage": 0.125,
+      "steps": 3,
+      "tokens_in": 10464,
+      "tokens_out": 580,
+      "cost": 0.025568,
+      "elapsed_ms": 4555.8,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q41",
+      "difficulty": "hard",
+      "question": "平均支付金额最高的 3 种支付方式是什么？各多少钱？",
+      "answer": "**结论：平均支付金额最高的 3 种支付方式如下（排名由 SQL 的 row_number() 生成）：**\n\n| 排名 | 支付方式 | 平均支付金额（BRL） | 支付记录数 |\n|---|---|---|---|\n| 1 | credit_card（信用卡） | 163.32 | 76,795 |\n| 2 | boleto（银行票据） | 145.03 | 19,784 |\n| 3 | debit_card（借记卡） | 142.57 | 1,529 |\n\n统计口径：对 `order_payments` 表的每条支付记录（payment_sequential 级别）计算 `avg(payment_value)`，按支付方式分组后取平均值最高的前 3 名；未按订单汇总，也未排除任何订单状态。上一条回答中的“1、2”是排名序号，并非查询结果中的数字；本次已改由 SQL 直接输出排名列。",
+      "correct": true,
+      "coverage": 0.462,
+      "steps": 4,
+      "tokens_in": 13198,
+      "tokens_out": 629,
+      "cost": 0.031428,
+      "elapsed_ms": 5526.6,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q42",
+      "difficulty": "hard",
+      "question": "同一客户相邻两次下单平均间隔多少天？保留两位小数。",
+      "answer": "**结论：同一客户相邻两次下单的平均间隔为 79.15 天。**\n\n口径说明：以 `customers.customer_unique_id` 识别同一真实客户，只统计 `order_status = 'delivered'` 的订单，按 `order_purchase_timestamp` 排序后用 `LAG` 取上一次下单时间，对相邻间隔（共 3,120 个间隔）求平均；若把其他状态订单也计入，结果会略有差异。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 3,
+      "tokens_in": 10194,
+      "tokens_out": 491,
+      "cost": 0.024316,
+      "elapsed_ms": 5454.2,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q43",
+      "difficulty": "hard",
+      "question": "平均评价分最高的 5 个卖家是哪些？要求至少有 50 条评价。",
+      "answer": "**结论：平均评价分最高的 5 个卖家（均至少有 50 条评价）**\n\n| 排名 | seller_id | 评价数 | 平均分 |\n|---|---|---|---|\n| 1 | d13e50eaa47b4cbe9eb81465865d8cfc | 67 | 4.821 |\n| 2 | d9bd94811c3338dceb4181f3dbc0c73e | 54 | 4.796 |\n| 3 | d566c37fa119d5e66c4e9052e83ee4ea | 64 | 4.688 |\n| 4 | 376a891762bbdecbc02b4b6adec3fdda | 57 | 4.667 |\n| 5 | 1bb2bdb95f4841f1bba2c0d2cd83d3c9 | 81 | 4.642 |\n\n口径说明：先按 `order_items` 中“卖家 × 订单”去重，再关联 `order_reviews` 的 `review_score`（1–5 分）求平均；未按订单状态过滤（即未排除 canceled 等状态，因为评价本身已存在），也未限定时间范围；仅保留评价数 ≥ 50 的卖家，按平均分降序取前 5。",
+      "correct": true,
+      "coverage": 0.852,
+      "steps": 3,
+      "tokens_in": 9823,
+      "tokens_out": 689,
+      "cost": 0.025158,
+      "elapsed_ms": 10406.0,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q44",
+      "difficulty": "hard",
+      "question": "差评率最高的 5 个客户州是哪些？要求至少有 200 条评价。",
+      "answer": "**结论：差评率（1–2 星）最高的 5 个客户州**\n\n| 排名 | 州 | 评价数 | 差评数 | 差评率 |\n|---|---|---|---|---|\n| 1 | AL | 412 | 98 | 23.79% |\n| 2 | MA | 735 | 156 | 21.22% |\n| 3 | SE | 344 | 72 | 20.93% |\n| 4 | RJ | 12,617 | 2,524 | 20.00% |\n| 5 | PA | 962 | 186 | 19.33% |\n\n以下数字全部来自上面这条 SQL 的返回结果：\n- 排名序号 1–5：由 `row_number()` 按差评率降序生成。\n- 门槛 200：查询条件为 `having count(*) >= 200`；满足该门槛的州共 **23 个**（`states_meeting_threshold`）。\n- 达标州中评价数最少为 **245** 条，最多为 **41,083** 条（`min/max_review_cnt_among_qualified`）。\n- RJ 的评价数 12,617 条，即 **4.11 万条**（`max_review_cnt_in_10k` 为 4.11，对应评价数最多的州，也就是 RJ）；RJ 占全部达标州评价量的 **42.06%**（`max_state_share_pct`）。\n\n口径：差评定义为 `review_score ≤ 2`；按 `customers.customer_state` 分组，仅统计有评价的订单，并排除 `canceled`、`unavailable` 状态；每个州至少 200 条评价才纳入排名；所有比率均由 SQL 用 `round(100.0 * a / b, 2)` 计算。\n\n需要说明的是：我上一条回答里“AL、SE 样本量 300–400 条”的说法，现在有据可查的是 AL 412 条、SE 344 条，两者都在 245–41,083 这个达标区间内；但“波动风险更高”属于定性判断，不是查询结果。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 5,
+      "tokens_in": 18816,
+      "tokens_out": 1655,
+      "cost": 0.050872,
+      "elapsed_ms": 23999.8,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "200",
+        "200",
+        "10",
+        "200",
+        "100.0",
+        "400"
+      ]
+    },
+    {
+      "id": "q45",
+      "difficulty": "hard",
+      "question": "平台整体的运费占商品金额的比例是多少？给百分比。",
+      "answer": "**结论：平台整体运费占商品金额的比例为 16.57%。**\n\n查询结果出处（全部来自同一条 SQL 的输出）：\n- 运费合计 total_freight = 2251909.54\n- 商品金额合计 total_price = 13591643.7\n- 比例 freight_pct = 16.57（由 SQL 用 `round(100.0 * sum(freight_value) / sum(price), 2)` 直接算出）\n- 明细行数 item_rows = 112650\n- 其中运费为 0 的行 zero_freight_rows = 383\n\n口径：基于 order_items 全部 112,650 条商品明细行汇总，未按订单状态过滤（包含 canceled 等非 delivered 订单的明细），运费为 0 的 383 行也计入分母与分子。",
+      "correct": true,
+      "coverage": 0.167,
+      "steps": 4,
+      "tokens_in": 13086,
+      "tokens_out": 606,
+      "cost": 0.03102,
+      "elapsed_ms": 5175.5,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0",
+        "2",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "id": "q46",
+      "difficulty": "hard",
+      "question": "2018 年上半年（1-6 月）相比 2017 年上半年的订单量增长率是多少？给百分比。",
+      "answer": "**结论：2018 年上半年（1–6 月）订单量相比 2017 年上半年增长 182.84%。**\n\n查询结果出处：\n- 2017H1：订单量 14,495，实际时间范围 2017-01-05 11:56:06 至 2017-06-30 23:20:08\n- 2018H1：订单量 40,997，实际时间范围 2018-01-01 02:48:41 至 2018-06-30 23:59:49\n- 增量 26,502，增长率由 SQL 计算：round(100.0 × 26502 / 14495, 2) = 182.84\n\n口径：按 `orders.order_purchase_timestamp` 划分半年度，区间为 [2017-01-01, 2017-07-01) 与 [2018-01-01, 2018-07-01)（左闭右开，即 1 月 1 日至 6 月 30 日），已排除 `canceled` 状态订单，其余状态均计入。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 6,
+      "tokens_in": 23359,
+      "tokens_out": 1416,
+      "cost": 0.058046,
+      "elapsed_ms": 10948.6,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0",
+        "-07",
+        "-07"
+      ]
+    },
+    {
+      "id": "q47",
+      "difficulty": "hard",
+      "question": "平均单件商品价格最高的 3 个类目是哪些？要求至少有 100 件商品。",
+      "answer": "**结论（全部数字均来自 SQL 输出）**\n\n平均单件商品价格最高的 3 个类目（门槛：件数 ≥ 100）：\n\n| rnk（SQL 计算） | 类目 | 英文名 | 件数 | 平均单价（BRL） |\n|---|---|---|---|---|\n| 1 | pcs | computers | 203 | 1098.34 |\n| 2 | eletrodomesticos_2 | home_appliances_2 | 238 | 476.12 |\n| 3 | agro_industria_e_comercio | agro_industry_and_commerce | 212 | 342.12 |\n\n门槛相关：全部类目共 74 个，其中件数 ≥ 100 的有 54 个，占比 72.97%（SQL 用 `round(100.0*a/b,2)` 算出）。\n\n口径：以 order_items 每行（订单中的一件商品）为计数单位，平均值为 `avg(price)`，仅商品价格、不含运费；未按订单状态过滤（含 canceled 等全部订单），price 无空值（最小 0.85、最大 6735）。排名由 `row_number() over (order by avg_price desc)` 在满足门槛的类目内生成，英文名来自 category_translation 左连接。",
+      "correct": true,
+      "coverage": 0.476,
+      "steps": 5,
+      "tokens_in": 18282,
+      "tokens_out": 1317,
+      "cost": 0.0471,
+      "elapsed_ms": 14489.6,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100",
+        "100",
+        "100.0"
+      ]
+    },
+    {
+      "id": "q11",
+      "difficulty": "ambiguous",
+      "question": "销量最好的商品类目是什么？请说明你用什么口径衡量\"销量\"。",
+      "answer": "## 结论（所有数字均来自上面的查询结果）\n\n**按销量（件数）衡量，销量最好的类目是 `bed_bath_table`（床品/浴室/桌布类）：11,097 件，覆盖 9,399 个订单，商品金额 1,035,964.06 雷亚尔。**\n\n按件数排名前 15 的类目（SQL 同时给出两种口径的排名）：\n\n| 件数排名 | 类目 | 销量（件） | 订单数 | 商品金额（R$） | 金额排名 |\n|---|---|---|---|---|---|\n| 1 | bed_bath_table | 11,097 | 9,399 | 1,035,964.06 | 3 |\n| 2 | health_beauty | 9,634 | 8,800 | 1,255,695.13 | 1 |\n| 3 | sports_leisure | 8,590 | 7,673 | 979,740.92 | 4 |\n| 4 | furniture_decor | 8,298 | 6,425 | 727,465.05 | 6 |\n| 5 | computers_accessories | 7,781 | 6,654 | 904,322.02 | 5 |\n| 6 | housewares | 6,915 | 5,847 | 626,825.80 | 7 |\n| 7 | watches_gifts | 5,970 | 5,604 | 1,198,185.21 | 2 |\n| 8 | telephony | 4,527 | 4,183 | 322,342.64 | 14 |\n| 9 | garden_tools | 4,328 | 3,505 | 481,009.94 | 10 |\n| 10 | auto | 4,204 | 3,872 | 586,585.73 | 9 |\n| 11 | toys | 4,083 | 3,855 | 479,808.54 | 11 |\n| 12 | cool_stuff | 3,779 | 3,616 | 620,770.49 | 8 |\n| 13 | perfumery | 3,402 | 3,146 | 396,599.31 | 13 |\n| 14 | baby | 3,043 | 2,868 | 410,312.20 | 12 |\n| 15 | electronics | 2,755 | 2,543 | 157,079.54 | 22 |\n\n**换口径会换冠军**：按商品金额（GMV）排名，第一是 `health_beauty`（1,255,695.13 雷亚尔），第二是 `watches_gifts`（1,198,185.21），`bed_bath_table` 只排第 3。\n\n## 口径说明（对应你指出的每个数字）\n\n- **“销量”= 件数**：`order_items` 的商品行数（一单多件计多件），不是订单数、不是金额。\n- **订单范围**：排除 `order_status` 为 `canceled` / `unavailable` 的订单，共 **1,234** 单，占全部 **99,441** 单的 **1.24%**；其余状态全部计入。\n- **时间范围**：全量数据，`order_purchase_timestamp` 从 **2016-09-04 21:15:19** 到 **2018-10-17 17:30:18**（我上一条写的“2018-08”是错的，实际最大时间戳是 2018-10-17）。\n- **类目归属**：`products.product_category_name` 经 `category_translation` 映射为英文名；无类目信息的商品行 **1,603** 件，占全部 **112,650** 件商品行的 **1.42%**，归为 unknown，未进入前 15。\n- **前 15 名**：上表正好 15 行，`limit 15` 截断，第 16 名及以后未展示。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 7,
+      "tokens_in": 30719,
+      "tokens_out": 2935,
+      "cost": 0.084918,
+      "elapsed_ms": 28997.9,
+      "error_kinds": [
+        "repeated_call",
+        "ambiguous_column",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "1,035",
+        "1,035",
+        "1,255",
+        "695.13",
+        "92",
+        "80",
+        "1,198",
+        "185.21",
+        "64",
+        "94",
+        "54",
+        "49",
+        "31",
+        "20",
+        "54",
+        "1,255",
+        "695.13",
+        "1,198",
+        "185.21",
+        "-08",
+        "16"
+      ]
+    },
+    {
+      "id": "q12",
+      "difficulty": "ambiguous",
+      "question": "各州的平均客单价是多少？列出前 5 名并说明客单价的口径。",
+      "answer": "## 结论：各州平均客单价前 5 名（全部数字均来自查询结果）\n\n| 排名 | 州 | 订单数 | 平均客单价（BRL） | 该州总交易额（BRL） | 相对全国均值 |\n|---|---|---|---|---|---|\n| 1 | PB | 531 | 264.63 | 140,519.57 | +65.12% |\n| 2 | AC | 81 | 242.97 | 19,680.62 | +51.60% |\n| 3 | AP | 68 | 239.16 | 16,262.80 | +49.23% |\n| 4 | AL | 411 | 234.19 | 96,252.70 | +46.13% |\n| 5 | RO | 246 | 233.47 | 57,433.47 | +45.68% |\n\n全国基准：98,206 单，平均客单价 **160.27 BRL**（相对百分比由 SQL 用 `round(100.0*avg/nat_avg-100,2)` 直接算出）。\n\n**口径说明**：客单价 = 订单级支付总额的平均值——先把 `order_payments` 按 `order_id` 汇总（一单可有多笔支付，直接对支付行取平均会低估），再按 `customers.customer_state` 求平均；排除 `canceled` 与 `unavailable` 状态订单；时间范围为全量数据，实际购买时间从 2016-09-04 21:15:19 到 2018-10-17 17:30:18；仅保留订单数 ≥ 30 的州（RR 为 45 单，是唯一被该门槛排除的州）。\n\n**关于\"大州客单价偏低\"的验证**：SQL 直接对比显示，SP+RJ 合计 53,824 单、平均客单价 148.54 BRL，其他州合计 44,382 单、平均 174.49 BRL，大州确实更低。但请注意，我上一条回答中\"运费占比是主因\"属于未经验证的推测，本次未做运费相关查询，不应作为结论。\n\n**样本量提示**：AC（81 单）、AP（68 单）订单量很小，均值波动大，排名稳定性弱于 PB、AL、RO。",
+      "correct": false,
+      "coverage": 0.044,
+      "steps": 7,
+      "tokens_in": 29628,
+      "tokens_out": 2268,
+      "cost": 0.0774,
+      "elapsed_ms": 50010.0,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "1",
+        "57",
+        "62",
+        "3",
+        "80",
+        "4",
+        "70",
+        "47",
+        "100.0",
+        "-100,2"
+      ]
+    },
+    {
+      "id": "q48",
+      "difficulty": "ambiguous",
+      "question": "客户满意度最高的州是哪个？请说明口径。",
+      "answer": "**结论：圣保罗州（SP）客户满意度最高，平均评分 4.2462 分（满分 5 分），5 星好评率 61.80%，1–2 星差评率 10.68%，样本 40,484 条评价。**\n\n关于你指出的两个数字，现在都有 SQL 出处：\n\n| 数字 | 出处 |\n|---|---|\n| 门槛 100 条 | 查询显示 27 个州中，24 个州评价数 ≥ 100，被排除的只有 3 个州：AC（80 条）、AP（66 条）、RR（41 条） |\n| SP 与 PR 差距 | SQL 算出 SP 平均分 4.2462、PR 平均分 4.2383，差值 0.0079 分；该差值占 SP 平均分的 **0.19%** |\n\n口径说明：\n- 满意度用 `order_reviews.review_score` 的平均分衡量，辅助看 5 星占比与 1–2 星占比；\n- 只统计 `order_status = 'delivered'`（已送达）订单，排除 canceled / shipped / unavailable 等未完成状态；\n- 州归属按 `customers.customer_state`（下单客户所在州），经 `orders.customer_id` 关联；\n- 仅纳入评价数 ≥ 100 的州（27 个州中排除 AC、AP、RR 三个小样本州）。\n\n补充：SP 与第二名 PR 的差距仅 0.0079 分（占 SP 均分 0.19%），实质上是并列，不宜说成 SP 明显领先。满意度最低的是 BA（3.929）、CE（3.938）、RJ（3.963），其中 RJ 差评率 18.36%，是明显短板。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 6,
+      "tokens_in": 25090,
+      "tokens_out": 1742,
+      "cost": 0.064116,
+      "elapsed_ms": 36462.8,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number",
+        "aggregate_without_from",
+        "aggregate_without_from"
+      ],
+      "unsourced": [
+        "100",
+        "100",
+        "100"
+      ]
+    },
+    {
+      "id": "q49",
+      "difficulty": "ambiguous",
+      "question": "哪些商品类目\"卖得多但评分低\"？请说明判断口径。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：你说得对，我需要逐项核实。先查评分差、差评率差、时间范围，以及那几个“差距极小”类目的精确数值。）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 41346,
+      "tokens_out": 2916,
+      "cost": 0.10602,
+      "elapsed_ms": 54361.1,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "0.158",
+        "0.096",
+        "0.569",
+        "0.227",
+        "0.245",
+        "6",
+        "2016",
+        "-09",
+        "2018",
+        "-08",
+        "0.015"
+      ]
+    },
+    {
+      "id": "q50",
+      "difficulty": "ambiguous",
+      "question": "平台最赚钱的商品类目是哪个？请说明你用什么指标衡量\"赚钱\"。",
+      "answer": "## 结论（全部数字均来自上述查询结果）\n\n**按平台成交额（GMV）衡量，最赚钱的类目是 `health_beauty`（健康与美妆）**：商品销售额 **1,255,695.13**，含运费总额 **1,437,665.78**，覆盖 **8,800** 个订单，客单价 **142.69**。\n\n但它对第二名的领先幅度很小：SQL 算出 `health_beauty` 仅比 `watches_gifts` 高 **4.8%**（1,255,695.13 vs 1,198,185.21）。\n\n### \"赚钱\"的口径说明\n数据库中没有成本、佣金、利润字段，只有 `order_items.price`（商品价）、`freight_value`（运费）、`order_payments.payment_value`（支付额），因此无法计算真实毛利。我采用**平台成交额口径**：\n\n- 主指标：`sum(price)` 商品销售额；辅以 `sum(price + freight_value)` 含运费总额；\n- 订单范围：排除 `canceled` 与 `unavailable`，共排除 **1,234** 单，保留 **98,207** 单（全表 99,441 单）；\n- 时间范围：全量数据，`order_purchase_timestamp` 从 **2016-09-04 21:15:19** 到 **2018-10-17 17:30:18**，未做时间切片；\n- 类目名经 `category_translation` 映射为英文，未匹配的归为 unknown。\n\n### 头部类目对比（GMV 前 5，均由 SQL 计算）\n\n| 类目 | 商品销售额 | 含运费总额 | 订单数 | 客单价 | 平均评分 | 评分数 |\n|---|---|---|---|---|---|---|\n| health_beauty | 1,255,695.13 | 1,437,665.78 | 8,800 | 142.69 | 4.19 | 8,790 |\n| watches_gifts | 1,198,185.21 | 1,298,292.47 | 5,604 | 213.81 | 4.07 | 5,567 |\n| bed_bath_table | 1,035,964.06 | 1,240,386.13 | 9,399 | 110.22 | 3.97 | 9,414 |\n| sports_leisure | 979,740.92 | 1,147,244.63 | 7,673 | 127.69 | 4.18 | 7,675 |\n| computers_accessories | 904,322.02 | 1,050,941.58 | 6,654 | 135.91 | 4.04 | 6,669 |\n\n### 补充视角（同样有查询出处）\n- **按单笔订单价值看，`watches_gifts` 最赚钱**：客单价 213.81，高于 health_beauty 的 142.69，且只用 5,604 单就做到 GMV 第二名。\n- **按订单量看，`bed_bath_table` 最大**（9,399 单），但客单价最低（110.22），评分也最低（3.97）。\n- **按评分看，`health_beauty` 最高**（4.19），`sports_leisure` 紧随其后（4.18）。\n\n### 更正说明\n上一条回答中我给出的评分（4.15 / 4.03 / 3.90 / 4.12 / 3.95）是**按商品行重复计权**算出的，本次改为按订单去重后计算，数值变为 4.19 / 4.07 / 3.97 / 4.18 / 4.04，请以本次为准。另外上一条提到的\"1,234 单被排除\"和\"2016-09 至 2018-10\"当时未实际查询，现已核实无误。\n\n如果你要的是\"平台真正赚到的钱\"（佣金收入），需要补充类目佣金率或成本数据；现有库只能给到 GMV 层面的答案。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 7,
+      "tokens_in": 34426,
+      "tokens_out": 3496,
+      "cost": 0.09682,
+      "elapsed_ms": 46749.3,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "1,255",
+        "695.13",
+        "1,437",
+        "665.78",
+        "1,255",
+        "695.13",
+        "1,198",
+        "185.21",
+        "1,255",
+        "695.13",
+        "1,437",
+        "665.78",
+        "1,198",
+        "185.21",
+        "1,298",
+        "292.47",
+        "1,035",
+        "386.13",
+        "92",
+        "1,147",
+        "244.63",
+        "1,050",
+        "941.58"
+      ]
+    },
+    {
+      "id": "q51",
+      "difficulty": "ambiguous",
+      "question": "表现最好的卖家是谁？请说明你的评价口径。",
+      "answer": "## 核实结果\n\n你指出的三个数字，核实情况如下：\n\n**1. “63”** —— 这是 GMV `229237.63` 的小数部分，不是独立数字。SQL 已确认该卖家 GMV 精确为 **229237.63**（`round(sum(oi.price),2)` 直接算出）。同时修正一处：该卖家差评率 SQL 算出是 **13.78%**，我上一条写的 13.85% 有误，以本次查询为准。\n\n**2. “2.5” 和 “2.5”** —— 这两个数字**无法用 SQL 查出来，因为它们不是数据，而是我自己设定的综合分权重**（评分×0.5 + 差评率得分×2.5 + 准时率得分×2.0）。这是我的主观加权，属于我编造的口径，不应作为“查询结果”呈现。我撤回那个综合分排名。\n\n## 基于纯查询结果的重新结论\n\n**口径一：GMV 最高（规模优先）**\n- 卖家 `4869f7a5dfa277a7dca6462dcf3b52b2`（SP）：GMV **229237.63**，1,131 单，评分 **4.126**，差评率 **13.78%**，准时率 **88.41%**。\n\n**口径二：评分最高（口碑优先，订单量 ≥ 300）**\n- 卖家 `fa40cc5b934574b62717c68f3d678b6d`：306 单，GMV **16050.87**，评分 **4.441**，差评率 **8.28%**，准时率 **94.08%**。\n- 紧随其后 `7299e27ed73d2ad986de7f7c77d919fa`：337 单，GMV **34225.43**，评分 **4.431**，差评率 **6.94%**，准时率 **95.25%**。\n\n**大卖家中的质量标杆**\n- `7a67c85e85bb2ce8582c35f2203ad736`：1,159 单，GMV **142295.5**，评分 **4.236**，差评率 **10.9%**，准时率 **94.13%**。\n\n## 口径说明\n- 时间范围：2016-09-04 至 2018-10-17 全部订单；GMV 口径排除 canceled 与 unavailable 状态。\n- 差评 = review_score ≤ 2；准时率 = 实际送达 ≤ 预估送达的已送达订单占比。所有比率均由 SQL 用 `round(100.0 * a / b, 2)` 直接计算。\n- **不再使用任何主观加权综合分**。若你需要一个综合排名，请先明确各指标的权重，我再按你给的权重用 SQL 计算。",
+      "correct": false,
+      "coverage": 0.064,
+      "steps": 8,
+      "tokens_in": 51294,
+      "tokens_out": 3806,
+      "cost": 0.133036,
+      "elapsed_ms": 62863.9,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "63",
+        "2.5",
+        "2.5",
+        "2.5"
+      ]
+    },
+    {
+      "id": "q52",
+      "difficulty": "ambiguous",
+      "question": "物流最快的州是哪个？请说明口径。",
+      "answer": "**结论：物流最快的州是圣保罗州（SP），平均配送时长 8.76 天，共 40,494 单已送达订单。**\n\nSQL 查出的关键数字：\n- 满足“已送达订单 ≥ 100 单”门槛的州共 **24 个**（全部 24 个州都满足，其中样本量最小的州有 **145 单**）；\n- 第二名是巴拉那州（PR），平均 **11.99 天**；\n- SP 比 PR 快 **3.23 天**，相当于 PR 平均时长的 **26.94%**（SQL 用 `round(100.0*(b-a)/b, 2)` 算出）。\n\n口径说明：\n- 只统计 `order_status = 'delivered'` 且 `order_delivered_customer_date`、`order_purchase_timestamp` 均非空的订单（排除 canceled/shipped 等未送达状态，也排除 2,965 条缺失送达时间的记录）；\n- 配送时长 = 客户签收时间 − 下单时间，按自然日计算，未扣除周末与节假日；\n- 按 `customers.customer_state`（收货州）分组，并要求该州已送达订单 ≥ 100 单以保证可比性。\n\n补充：SP 的样本量（40,494 单）远大于其他州，且领先幅度（3.23 天）明显大于其余州之间的差距，结论稳健。",
+      "correct": false,
+      "coverage": 0.2,
+      "steps": 5,
+      "tokens_in": 19635,
+      "tokens_out": 1656,
+      "cost": 0.052518,
+      "elapsed_ms": 15907.2,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100",
+        "100.0",
+        "100"
+      ]
+    },
+    {
+      "id": "q53",
+      "difficulty": "ambiguous",
+      "question": "销售出现明显异常的月份有哪些？请说明异常的定义。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：你说得对，我确实有数字是心算或估算的。让我逐条查证。）",
+      "correct": false,
+      "coverage": 1.0,
+      "steps": 8,
+      "tokens_in": 41994,
+      "tokens_out": 3090,
+      "cost": 0.108708,
+      "elapsed_ms": 30135.1,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "13.7",
+        "28.4",
+        "11",
+        "86.2",
+        "24.3",
+        "110.2",
+        "11",
+        "20",
+        "100",
+        "1,234",
+        "24"
+      ]
+    },
+    {
+      "id": "q54",
+      "difficulty": "ambiguous",
+      "question": "有多少活跃客户？请说明\"活跃\"的定义。",
+      "answer": "## 重新给出的结论（全部数字均有查询出处）\n\n**按“近 6 个月内有有效下单”口径，活跃客户为 28,507 人。**\n\n| 指标 | 数值 | 出处 |\n|---|---|---|\n| 全期有效下单客户（排除 canceled/unavailable） | 94,990 | 查询 1 |\n| 近 6 个月活跃客户（≥ 2018-04-17） | 28,507 | 查询 4 |\n| 近 3 个月活跃客户（≥ 2018-07-17） | 9,971 | 查询 4 |\n| 一次性客户数 / 占比 | 92,102 / **96.96%** | 查询 2（SQL 计算） |\n| canceled 订单数 | 625 | 查询 3 |\n| unavailable 订单数 | 609 | 查询 3 |\n| 两者合计 | 1,234 | 查询 3 |\n| 以当前日期为基准的活跃客户 | 0 | 查询 4 |\n\n**口径说明：**\n- 客户按 `customers.customer_unique_id` 去重；`customer_id` 每单一个，不能用于数客户。\n- “活跃”= 在时间窗内有下单，且订单状态排除 `canceled` 与 `unavailable`（合计 1,234 单）。\n- 时间窗基准为数据中最后一笔订单 `2018-10-17 17:30:18`，由 SQL 用 `date(max(...), '-6 months')` 算出边界 `2018-04-17` / `2018-07-17`。若改用 `date('now')` 作基准，结果为 0（查询 4 已验证），因为该数据集是 2016-09 至 2018-10 的历史快照。\n\n**修正说明：** 上一条回答中的 28,245 / 9,757 是错的，正确值为 28,507 / 9,971；边界日期应为 04-17 / 07-17，我此前误写为 04-18 / 07-18。1,234 与 96.96% 经查证成立（我此前口述为“约 97%”，SQL 精确值为 96.96%）。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 7,
+      "tokens_in": 30297,
+      "tokens_out": 2334,
+      "cost": 0.079266,
+      "elapsed_ms": 34345.7,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "-6",
+        "-18",
+        "-18"
+      ]
+    },
+    {
+      "id": "q55",
+      "difficulty": "ambiguous",
+      "question": "2018 年相比 2017 年增长了多少？请说明增长口径。",
+      "answer": "**结论（同口径 1–8 月对比）：2018 年订单数 53,531 单，比 2017 年的 44,379 单增长 20.62%；GMV 从 7,092,491.65 雷亚尔（709.25 万）增至 8,594,665.52 雷亚尔（859.47 万），增长 21.18%；客单价从 159.82 增至 160.55，仅增长 0.46%。**\n\n以上所有数字（含 709.25 万、859.47 万、三个百分比）均由同一条 SQL 直接计算输出，无任何心算换算。\n\n口径说明：\n- **时间范围**：两年均只取 1–8 月。2018 年数据在 8 月后基本截止（9 月 16 单、10 月 4 单），若用全年对比会严重失真。\n- **订单范围**：排除 `canceled` 与 `unavailable` 状态订单，其余状态计入。\n- **GMV 口径**：按 `order_payments.payment_value` 汇总（含运费、含分期，同一订单多笔支付已合并），非 `order_items.price` 商品金额。\n- **客单价**：GMV ÷ 订单数，由 SQL 计算。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 7,
+      "tokens_in": 30386,
+      "tokens_out": 2203,
+      "cost": 0.078396,
+      "elapsed_ms": 23594.6,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "7,092",
+        "491.65",
+        "8,594",
+        "665.52"
+      ]
+    },
+    {
+      "id": "q56",
+      "difficulty": "ambiguous",
+      "question": "平台的平均客单价是多少？请说明客单价口径。",
+      "answer": "## 结论\n\n**平台平均客单价约 160.27（货币单位：巴西雷亚尔 BRL）**，主口径为「排除 canceled 与 unavailable 订单的支付总额 ÷ 订单数」。\n\n| 口径 | 订单数 | GMV | 客单价 |\n|---|---|---|---|\n| 全部订单（含 canceled/unavailable） | 99,440 | 16,008,872.12 | **160.99** |\n| 排除 canceled + unavailable（主口径） | 98,206 | — | **160.27** |\n| 仅 delivered 订单 | 96,477 | 15,422,461.77 | **159.86** |\n| 商品金额口径（price，不含运费，排除无效单） | 98,199 | 13,494,400.74 | **137.42** |\n| 商品+运费口径（price+freight，排除无效单） | 98,199 | 15,735,527.03 | **160.24** |\n\n**运费占「商品+运费」总额的比例：14.24%**（SQL 直接计算：`round(100.0 * sum(freight_value) / sum(price + freight_value), 2)`）。\n\n## 口径说明\n\n- **客单价定义**：订单支付总额 ÷ 订单数。金额取自 `order_payments.payment_value`（含运费与分期），因存在一单多笔支付（103,886 行支付记录对应 99,440 个订单），必须先按 `order_id` 聚合再求均值。\n- **主口径排除** `canceled`（625 单）与 `unavailable`（609 单）状态订单；若仅看 `delivered` 订单，客单价为 159.86，差异很小。\n- **时间范围**：全量数据，订单购买时间从 `2016-09-04 21:15:19` 到 `2018-10-17 17:30:18`（即 2016-09 至 2018-10）。\n- 支付口径（160.27）与「商品+运费」口径（160.24）互相验证一致；若只看商品价格不含运费，客单价为 137.42。\n\n## 更正说明\n\n上一条回答中出现的「16,008、872.12」「15,422、461.77」「13,494、400.74」「15,735、527.03」是我把千分位逗号误当成分隔符拆开，实际数值分别为 16,008,872.12、15,422,461.77、13,494,400.74、15,735,527.03；「2016-09」「2018-10」和「14%」当时未实际查询，现已分别由 `min/max(order_purchase_timestamp)` 和 SQL 百分比计算确认。",
+      "correct": true,
+      "coverage": 0.017,
+      "steps": 5,
+      "tokens_in": 20391,
+      "tokens_out": 2451,
+      "cost": 0.06039,
+      "elapsed_ms": 31636.5,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "16,008",
+        "872.12",
+        "15,422",
+        "461.77",
+        "13,494",
+        "400.74",
+        "15,735",
+        "527.03",
+        "100.0",
+        "16,008",
+        "872.12",
+        "15,422",
+        "461.77",
+        "13,494",
+        "400.74",
+        "15,735",
+        "527.03",
+        "16,008",
+        "872.12",
+        "15,422",
+        "461.77",
+        "13,494",
+        "400.74",
+        "15,735",
+        "527.03",
+        "14"
+      ]
+    },
+    {
+      "id": "q57",
+      "difficulty": "ambiguous",
+      "question": "最主流的支付方式是哪种？占多少比例？",
+      "answer": "**结论：最主流的支付方式是信用卡（credit_card），占 73.92%。**\n\n查询结果明细（order_payments 表，总行数 103,886，已由 SQL 的 count(*) 实际查出）：\n\n| 支付方式 | 记录数 | 占比 |\n|---|---|---|\n| credit_card | 76,795 | 73.92% |\n| boleto | 19,784 | 19.04% |\n| voucher | 5,775 | 5.56% |\n| debit_card | 1,529 | 1.47% |\n| not_defined | 3 | 0.00% |\n\n口径说明：按 order_payments 表的支付记录条数统计，占比由 SQL 用 `round(100.0*count(*)/总行数, 2)` 直接算出；未按订单去重（同一订单可能有多笔支付记录），也未按订单状态做任何排除。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 4,
+      "tokens_in": 13235,
+      "tokens_out": 628,
+      "cost": 0.031494,
+      "elapsed_ms": 5650.2,
+      "error_kinds": [
+        "unsourced_number",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "100.0",
+        "2"
+      ]
+    },
+    {
+      "id": "q58",
+      "difficulty": "ambiguous",
+      "question": "评价最差的月份是哪个月？请说明口径。",
+      "answer": "## 结论（全部数字均来自上述查询结果）\n\n**评价最差的月份是 2018 年 3 月**：平均评分 **3.727**（评分取值范围经查询确认为 1–5，即满分 5），差评率（1–2 星）**23.48%**，当月评价量 **7,803** 条。\n\n次差月份：2018-04（3.920 分 / 19.10% / 7,287 条）、2017-12（3.932 分 / 18.52% / 7,982 条）。\n\n**口径说明：**\n- 月份归属用 `order_reviews.review_creation_date` 的年月（评价生成月，非下单月）；统计全部评价记录，不按订单状态过滤。\n- 样本量阈值 **1000 条**是我设定的过滤条件，其影响已量化：满足该阈值的月份共 **19 个**，覆盖 **98,660** 条评价，占全部 **99,224** 条的 **99.43%**。\n- 被该阈值排除的月份共 4 个（2016-10、2016-11、2016-12、2017-01），其中 2016-12（45 条，2.356 分）和 2016-11（101 条，3.188 分）评分更低，但样本极小；且此前查询显示 2016-11 无订单记录、2016-12 仅 1 单，属数据不完整期，故不作为结论。\n- 若不做样本量限制，全量月份中评分最低的是 2016-12（2.356 分），这一点也如实列出，供你按不同口径取舍。",
+      "correct": false,
+      "coverage": 0.28,
+      "steps": 8,
+      "tokens_in": 41422,
+      "tokens_out": 2336,
+      "cost": 0.101532,
+      "elapsed_ms": 16960.8,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q59",
+      "difficulty": "ambiguous",
+      "question": "客户主要集中在哪个州？",
+      "answer": "**结论：客户主要集中在圣保罗州（SP），共 41,746 个客户，占全部客户的 41.98%。**\n\n各州明细（均由 SQL 直接算出）：\n\n| 州 | 客户数 | 占比 |\n|---|---|---|\n| SP | 41,746 | 41.98% |\n| RJ | 12,852 | 12.92% |\n| MG | 11,635 | 11.70% |\n| RS | 5,466 | 5.50% |\n| PR | 5,045 | 5.07% |\n\nSP、RJ、MG 三州合计 66,233 个客户，占全部 99,441 个客户的 **66.61%**（此前我写的 66.6% 是心算结果，现更正为 SQL 计算值 66.61%）。\n\n口径说明：统计基于 customers 表全部 99,441 条记录（每个订单对应一个 customer_id，未按 customer_unique_id 去重，也未关联订单状态过滤）；若按真实客户去重（96,096 人），SP 为 40,302 人，排名不变。",
+      "correct": false,
+      "coverage": 0.1,
+      "steps": 5,
+      "tokens_in": 17507,
+      "tokens_out": 895,
+      "cost": 0.042174,
+      "elapsed_ms": 7695.9,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q60",
+      "difficulty": "ambiguous",
+      "question": "商品描述长度与评价分数有关系吗？请说明你的分析口径。",
+      "answer": "## 结论（数字全部来自 SQL 计算）\n\n**商品描述长度与评价分数几乎无关，只有极微弱的正相关。**\n\n| 描述长度分档 | 评价数 | 平均评分 | 差评率(1–2分) | 5分占比 |\n|---|---|---|---|---|\n| <200 | 8,791 | 4.041 | 15.89% | 56.52% |\n| 200–499 | 31,832 | 4.054 | 15.53% | 57.07% |\n| 500–999 | 35,616 | 4.093 | 14.52% | 57.97% |\n| 1000–1999 | 18,668 | 4.100 | 14.17% | 57.65% |\n| ≥2000 | 5,866 | 4.116 | 14.22% | 59.34% |\n\n由 SQL 直接算出的极值档对比：\n- 平均评分：最长档 **4.1159** vs 最短档 **4.0408**，差值 **+0.0751 分**\n- 差评率：最长档 **14.22%** vs 最短档 **15.89%**，差值 **-1.67 个百分点**\n\n其他已查出的证据：\n- 相关系数 **Pearson r = 0.0166**（n = 100,773），可忽略级别。\n- 品类内控制混杂：22 个样本量足够的品类中 **15 个**长描述（≥1000 字符）平均分高于短描述（<500 字符），平均差值 **+0.0621 分**（SQL 计算）。\n\n## 分析口径\n\n1. **关联方式**：`order_reviews` → `order_items`（按 order_id，去重到 order_id+product_id 组合）→ `products`，把商品描述长度挂到该订单的评价上。分析单位是「订单-商品-评价」记录，不是商品本身。\n2. **样本范围**：仅保留 `product_description_lenght` 非空的记录（products 表 32,951 个商品中 610 个该字段为空，已排除；无 0 值，长度范围 4–3992，均值 771.5）。\n3. **未做的过滤**：没有按 `order_status` 排除 canceled 订单，也没有剔除无评论文本的评价——评价分数本身是订单级结果，取消订单通常也带低分，剔除会人为削弱信号。若只看 delivered 订单，方向不变，但差评率绝对值会下降。\n4. **指标定义**：差评率 = review_score ≤ 2 的占比；所有比率、差值、相关系数均由 SQL 直接计算（`round(100.0 * a / b, 2)` 形式），无手工换算。\n5. **局限**：这是相关性而非因果——描述长度与品类、卖家、价格、物流时效高度共线，且评价分数主要受配送时效影响。若要评估「描述质量」的真实作用，建议改用描述文本是否含关键属性、图片数量等更贴近信息充分性的指标，并控制交付延迟变量。",
+      "correct": false,
+      "coverage": 0.017,
+      "steps": 7,
+      "tokens_in": 34414,
+      "tokens_out": 3259,
+      "cost": 0.0949,
+      "elapsed_ms": 36347.3,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "100.0"
+      ]
+    }
+  ]
+}

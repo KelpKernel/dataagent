@@ -31,28 +31,38 @@ from run_eval import gold_from_sql, judge, load_questions  # noqa: E402
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", help="results json 路径，默认取最新一个")
+    parser.add_argument(
+        "--file", nargs="+", help="一个或多个 results json，默认取最新一个"
+    )
     parser.add_argument("--db")
     parser.add_argument("--questions", default=str(ROOT / "evals" / "questions.yaml"))
     parser.add_argument("--dry-run", action="store_true", help="只打印不覆盖文件")
     args = parser.parse_args()
 
     results_dir = ROOT / "evals" / "results"
-    target = Path(args.file) if args.file else max(
-        results_dir.glob("run-*.json"), key=lambda p: p.stat().st_mtime, default=None
-    )
-    if target is None or not Path(target).exists():
+    if args.file:
+        targets = [Path(name) for name in args.file]
+    else:
+        latest = max(
+            results_dir.glob("run-*.json"), key=lambda p: p.stat().st_mtime, default=None
+        )
+        targets = [latest] if latest else []
+    targets = [path for path in targets if path and Path(path).exists()]
+    if not targets:
         print("找不到 results json，先跑一次 evals/run_eval.py")
         return 1
 
-    payload = json.loads(Path(target).read_text(encoding="utf-8"))
-    records = payload["records"]
+    payloads = [
+        (path, json.loads(Path(path).read_text(encoding="utf-8"))) for path in targets
+    ]
     refs = {item["id"]: item for item in load_questions(Path(args.questions))}
 
+    # gold 只建一次：60 条 ref_sql 要跑十几秒，重算多个文件时不能重复付这个代价
+    needed = {record["id"] for _, payload in payloads for record in payload["records"]}
     config = Config.from_env(db_path=args.db)
     sandbox = Sandbox(config.db_path)
     golds = {}
-    for question_id in {r["id"] for r in records}:
+    for question_id in sorted(needed):
         item = refs.get(question_id)
         if item is None:
             print(f"警告：{question_id} 不在题目文件里，跳过重算")
@@ -61,54 +71,55 @@ def main() -> int:
         golds[question_id] = (kind, values, primary)
     sandbox.close()
 
-    changed = []
-    for record in records:
-        gold = golds.get(record["id"])
-        if gold is None:
-            continue
-        kind, values, primary = gold
-        correct, coverage = judge(kind, record["answer"], values, primary)
-        if correct != record["correct"]:
-            changed.append((record["id"], record["correct"], correct))
-        record["correct"] = correct
-        record["coverage"] = round(coverage, 3)
+    for target, payload in payloads:
+        records = payload["records"]
+        changed = []
+        for record in records:
+            gold = golds.get(record["id"])
+            if gold is None:
+                continue
+            kind, values, primary = gold
+            correct, coverage = judge(kind, record["answer"], values, primary)
+            if correct != record["correct"]:
+                changed.append((record["id"], record["correct"], correct))
+            record["correct"] = correct
+            record["coverage"] = round(coverage, 3)
 
-    n = len(records)
-    accuracy = round(sum(r["correct"] for r in records) / n, 3) if n else 0.0
-    by_difficulty: dict[str, list[bool]] = {}
-    for record in records:
-        by_difficulty.setdefault(record["difficulty"], []).append(record["correct"])
+        n = len(records)
+        accuracy = round(sum(r["correct"] for r in records) / n, 3) if n else 0.0
+        by_difficulty: dict[str, list[bool]] = {}
+        for record in records:
+            by_difficulty.setdefault(record["difficulty"], []).append(record["correct"])
 
-    summary = payload.get("summary", {})
-    summary.update(
-        {
-            "n": n,
-            "accuracy": accuracy,
-            "by_difficulty": {
-                key: round(sum(values) / len(values), 3)
-                for key, values in sorted(by_difficulty.items())
-            },
-            "judge_version": "primary_value_v2",
-        }
-    )
-    payload["summary"] = summary
-
-    print(f"文件：{target}")
-    print(f"重算后准确率：{accuracy}（{sum(r['correct'] for r in records)}/{n}）")
-    for key, value in summary.get("by_difficulty", {}).items():
-        print(f"  {key:<10} {value}")
-    if changed:
-        print(f"\n判对结果变化 {len(changed)} 条：")
-        for question_id, before, after in changed:
-            print(f"  {question_id}: {'对' if before else '错'} → {'对' if after else '错'}")
-    else:
-        print("\n判对结果没有变化")
-
-    if not args.dry_run:
-        Path(target).write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+        summary = payload.get("summary", {})
+        summary.update(
+            {
+                "n": n,
+                "accuracy": accuracy,
+                "by_difficulty": {
+                    key: round(sum(values) / len(values), 3)
+                    for key, values in sorted(by_difficulty.items())
+                },
+                "judge_version": "primary_value_v2",
+            }
         )
-        print(f"\n已更新：{target}")
+        payload["summary"] = summary
+
+        print(f"文件：{target}")
+        print(f"  重算后准确率：{accuracy}（{sum(r['correct'] for r in records)}/{n}）")
+        for key, value in summary.get("by_difficulty", {}).items():
+            print(f"    {key:<10} {value}")
+        if changed:
+            print(f"  判对结果变化 {len(changed)} 条：")
+            for question_id, before, after in changed:
+                print(f"    {question_id}: {'对' if before else '错'} → {'对' if after else '错'}")
+        else:
+            print("  判对结果没有变化")
+
+        if not args.dry_run:
+            Path(target).write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
     return 0
 
 

@@ -20,7 +20,7 @@ from __future__ import annotations
 import math
 import re
 
-_NUMBER = re.compile(r"-?\d+(?:[.,]\d+)?")
+_NUMBER = re.compile(r"-?\d{1,3}(?:,\d{3})+(?:\.\d+)?|-?\d+(?:[.,]\d+)?")
 
 
 def collect_from_values(values: list) -> list[float]:
@@ -71,7 +71,8 @@ def _matches_nearby(
     )
 
 
-def _parse_numbers(text: str) -> list[float]:
+def numbers_in(text: str) -> list[float]:
+    """抽取文本里的所有数值（正确处理多级千分位）。"""
     out: list[float] = []
     for token in _NUMBER.findall(text):
         value = _parse_token(token)
@@ -80,10 +81,20 @@ def _parse_numbers(text: str) -> list[float]:
     return out
 
 
+def _parse_numbers(text: str) -> list[float]:
+    return numbers_in(text)
+
+
 def _parse_token(token: str) -> float | None:
-    """'99,441' 是千分位，'0,625' 是小数——靠逗号后是否为 3 位数字区分。"""
+    """区分千分位与小数。
+
+    必须处理多级千分位：`12,542,084.19` 早期版本会被切成 `12,542` 和 `084.19`
+    两个数，导致正确答案被判成错（DeepSeek 在 q22 上就栽在这）。
+    """
     cleaned = token
-    if "," in token:
+    if token.count(",") >= 2:
+        cleaned = token.replace(",", "")
+    elif "," in token:
         head, _, tail = token.partition(",")
         cleaned = head + tail if len(tail) == 3 else head + "." + tail
     try:

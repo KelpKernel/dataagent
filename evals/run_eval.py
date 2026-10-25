@@ -28,9 +28,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from dataagent.config import Config  # noqa: E402
 from dataagent.sandbox import Sandbox  # noqa: E402
-from dataagent.verify import collect_from_values, _parse_token  # noqa: E402
-
-_NUMBER = re.compile(r"-?\d+(?:[.,]\d+)?")
+from dataagent.verify import collect_from_values, numbers_in  # noqa: E402
 
 
 def load_questions(path: Path) -> list[dict]:
@@ -54,12 +52,8 @@ def gold_from_sql(sandbox: Sandbox, ref_sql: str):
 
 
 def _numbers_in(text: str) -> list[float]:
-    out = []
-    for token in _NUMBER.findall(text):
-        value = _parse_token(token)
-        if value is not None:
-            out.append(value)
-    return out
+    """统一走 verify 里的解析，避免两处正则各写一份（多级千分位就是这么漏掉的）。"""
+    return numbers_in(text)
 
 
 def _hit(value: float, pool: list[float], tol: float = 1e-3) -> bool:
