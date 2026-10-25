@@ -1,0 +1,1246 @@
+{
+  "summary": {
+    "model": "glm-4-flash",
+    "prompt_version": "v0.2.0",
+    "n": 60,
+    "accuracy": 0.483,
+    "avg_steps": 5.2,
+    "total_tokens": 1153499,
+    "total_cost": 0.0,
+    "by_difficulty": {
+      "ambiguous": 0.2,
+      "easy": 0.933,
+      "hard": 0.333,
+      "medium": 0.467
+    },
+    "judge_version": "primary_value_v2"
+  },
+  "records": [
+    {
+      "id": "q01",
+      "difficulty": "easy",
+      "question": "一共有多少个订单？",
+      "answer": "一共有99441个订单。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 5989,
+      "tokens_out": 24,
+      "cost": 0.0,
+      "elapsed_ms": 2428.9,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q02",
+      "difficulty": "easy",
+      "question": "一共有多少个不同的真实客户（同一客户多次下单只算一次）？",
+      "answer": "一共有 96,096 个不同的真实客户。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6032,
+      "tokens_out": 112,
+      "cost": 0.0,
+      "elapsed_ms": 1665.7,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q03",
+      "difficulty": "easy",
+      "question": "被取消（canceled）的订单占全部订单的比例是多少？请给百分比，保留两位小数。",
+      "answer": "被取消（canceled）的订单占全部订单的比例是 0.63%。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 8,
+      "tokens_in": 30258,
+      "tokens_out": 199,
+      "cost": 0.0,
+      "elapsed_ms": 17493.2,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number",
+        "syntax",
+        "aggregate_without_from",
+        "aggregate_without_from"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q13",
+      "difficulty": "easy",
+      "question": "一共有多少个卖家？",
+      "answer": "一共有3,095个卖家。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 4,
+      "tokens_in": 12382,
+      "tokens_out": 41,
+      "cost": 0.0,
+      "elapsed_ms": 7332.7,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q14",
+      "difficulty": "easy",
+      "question": "一共有多少种不同的商品？",
+      "answer": "一共有 32,951 种不同的商品。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 9460,
+      "tokens_out": 42,
+      "cost": 0.0,
+      "elapsed_ms": 5358.2,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q15",
+      "difficulty": "easy",
+      "question": "状态为已送达（delivered）的订单有多少个？",
+      "answer": "状态为已送达（delivered）的订单有96478个。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 10347,
+      "tokens_out": 50,
+      "cost": 0.0,
+      "elapsed_ms": 6570.6,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q16",
+      "difficulty": "easy",
+      "question": "平均每笔支付金额是多少？保留两位小数。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 27452,
+      "tokens_out": 317,
+      "cost": 0.0,
+      "elapsed_ms": 25822.2,
+      "error_kinds": [
+        "unsourced_number",
+        "unknown_column",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "1600.89"
+      ]
+    },
+    {
+      "id": "q17",
+      "difficulty": "easy",
+      "question": "评价分数的最高分和最低分分别是多少？",
+      "answer": "评价分数的最高分是5分，最低分是1分。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 9958,
+      "tokens_out": 97,
+      "cost": 0.0,
+      "elapsed_ms": 10722.6,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q18",
+      "difficulty": "easy",
+      "question": "客户覆盖了多少个州？",
+      "answer": "客户覆盖了27个州，占总客户数的2.78%。",
+      "correct": true,
+      "coverage": 0.5,
+      "steps": 6,
+      "tokens_in": 20010,
+      "tokens_out": 83,
+      "cost": 0.0,
+      "elapsed_ms": 14483.8,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "2.78"
+      ]
+    },
+    {
+      "id": "q19",
+      "difficulty": "easy",
+      "question": "单笔订单商品的最高运费是多少？保留两位小数。",
+      "answer": "单笔订单商品的最高运费是409.68元。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6030,
+      "tokens_out": 85,
+      "cost": 0.0,
+      "elapsed_ms": 5354.4,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q20",
+      "difficulty": "easy",
+      "question": "最早的一笔订单是什么时候下的？",
+      "answer": "最早的一笔订单是在 2016 年 9 月 4 日 21:15:19 下的。",
+      "correct": true,
+      "coverage": 0.667,
+      "steps": 4,
+      "tokens_in": 12366,
+      "tokens_out": 174,
+      "cost": 0.0,
+      "elapsed_ms": 16584.1,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "9",
+        "4"
+      ]
+    },
+    {
+      "id": "q21",
+      "difficulty": "easy",
+      "question": "有多少条评价是 5 分？",
+      "answer": "有57328条评价是5分。",
+      "correct": true,
+      "coverage": 0.5,
+      "steps": 3,
+      "tokens_in": 10027,
+      "tokens_out": 64,
+      "cost": 0.0,
+      "elapsed_ms": 8692.0,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q22",
+      "difficulty": "easy",
+      "question": "信用卡（credit_card）支付的总金额是多少？保留两位小数。",
+      "answer": "信用卡支付的总金额为12542084.19元。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6035,
+      "tokens_out": 114,
+      "cost": 0.0,
+      "elapsed_ms": 6470.7,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q23",
+      "difficulty": "easy",
+      "question": "商品的平均重量是多少克？保留两位小数。",
+      "answer": "商品的平均重量是 2276.47 克。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 2,
+      "tokens_in": 6023,
+      "tokens_out": 76,
+      "cost": 0.0,
+      "elapsed_ms": 9428.9,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q24",
+      "difficulty": "easy",
+      "question": "有多少个订单包含 2 件及以上的商品？",
+      "answer": "包含 2 件及以上商品的订单数量为 9803，订单商品总数为 112650，只包含 1 件商品的订单数量为 98666。因此，包含 2 件及以上商品的订单占比为 round(100.0 * 9803 / 112650, 2) = 8.68%。",
+      "correct": true,
+      "coverage": 0.182,
+      "steps": 6,
+      "tokens_in": 20387,
+      "tokens_out": 346,
+      "cost": 0.0,
+      "elapsed_ms": 27206.8,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "2",
+        "1",
+        "2",
+        "100.0",
+        "2",
+        "8.68"
+      ]
+    },
+    {
+      "id": "q04",
+      "difficulty": "medium",
+      "question": "2018 年每个月的订单量是多少？按月份升序给出。",
+      "answer": "2018年每个月的订单量占比如下：\n- 1月：13.46%\n- 2月：12.46%\n- 3月：13.35%\n- 4月：12.85%\n- 5月：12.73%\n- 6月：11.42%\n- 7月：11.65%\n- 8月：12.06%\n- 9月：0.03%\n- 10月：0.01%\n\n这些数据均未排除已取消的订单。",
+      "correct": false,
+      "coverage": 0.095,
+      "steps": 6,
+      "tokens_in": 21630,
+      "tokens_out": 468,
+      "cost": 0.0,
+      "elapsed_ms": 29970.6,
+      "error_kinds": [
+        "blocked",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ]
+    },
+    {
+      "id": "q05",
+      "difficulty": "medium",
+      "question": "各订单状态（order_status）分别有多少订单？按数量降序。",
+      "answer": "各订单状态的数量如下：\n- delivered: 96,478\n- shipped: 1,107\n- canceled: 625\n- unavailable: 609\n- invoiced: 314\n- processing: 301\n- created: 5\n- approved: 2\n\n以上数据按数量降序排列。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 10172,
+      "tokens_out": 112,
+      "cost": 0.0,
+      "elapsed_ms": 8368.0,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q06",
+      "difficulty": "medium",
+      "question": "哪种支付方式（payment_type）的订单数最多？有多少笔？",
+      "answer": "支付方式为 credit_card 的订单数最多，共有 76795 笔。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 9499,
+      "tokens_out": 78,
+      "cost": 0.0,
+      "elapsed_ms": 5795.7,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q07",
+      "difficulty": "medium",
+      "question": "平均每条订单的评价分数是多少？保留两位小数。",
+      "answer": "平均每条订单的评价分数是 4.09 分。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 9943,
+      "tokens_out": 74,
+      "cost": 0.0,
+      "elapsed_ms": 1485.4,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q25",
+      "difficulty": "medium",
+      "question": "客户数最多的 5 个州是哪些？各有多少客户？",
+      "answer": "客户数最多的 5 个州及其客户数量如下：\n\n1. São Paulo (SP)：约 24,524 名客户\n2. Rio de Janeiro (RJ)：约 9,812 名客户\n3. Minas Gerais (MG)：约 7,648 名客户\n4. Paraná (PR)：约 6,864 名客户\n5. Bahia (BA)：约 6,816 名客户\n\n这些数据是基于客户唯一标识（customer_unique_id）进行统计的，因此排除了同一客户下的多个订单。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 6,
+      "tokens_in": 21678,
+      "tokens_out": 390,
+      "cost": 0.0,
+      "elapsed_ms": 30982.7,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "5",
+        "1",
+        "24,524",
+        "2",
+        "9,812",
+        "3",
+        "7,648",
+        "4",
+        "6,864",
+        "5",
+        "6,816"
+      ]
+    },
+    {
+      "id": "q26",
+      "difficulty": "medium",
+      "question": "2017 年每个月的支付总额是多少？按月份升序。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 30622,
+      "tokens_out": 554,
+      "cost": 0.0,
+      "elapsed_ms": 48288.1,
+      "error_kinds": [
+        "unknown_column",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number",
+        "unknown_column",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "1",
+        "87",
+        "2",
+        "22",
+        "3",
+        "61",
+        "4",
+        "47",
+        "5",
+        "02",
+        "6",
+        "57",
+        "7",
+        "3",
+        "8",
+        "79",
+        "9",
+        "79",
+        "10",
+        "61",
+        "11",
+        "1,174",
+        "911.51",
+        "12",
+        "69"
+      ]
+    },
+    {
+      "id": "q27",
+      "difficulty": "medium",
+      "question": "平均每个订单包含多少件商品？保留两位小数。",
+      "answer": "平均每个订单包含 1.20 件商品。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 3,
+      "tokens_in": 9814,
+      "tokens_out": 78,
+      "cost": 0.0,
+      "elapsed_ms": 11279.5,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q28",
+      "difficulty": "medium",
+      "question": "各支付方式的平均分期数是多少？按分期数降序。",
+      "answer": "各支付方式的平均分期数如下：\n- 信用卡：3.51期\n- 优惠券：1期\n- 未定义：1期\n- 借记卡：1期\n- 银行汇票：1期\n\n数据按分期数降序排列。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 4,
+      "tokens_in": 13849,
+      "tokens_out": 179,
+      "cost": 0.0,
+      "elapsed_ms": 17875.5,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q29",
+      "difficulty": "medium",
+      "question": "评价分数 1 到 5 分各有多少条？",
+      "answer": "评价分数 1 到 5 分的条数分别为：1 分有 11424 条，2 分有 3151 条，3 分有 8179 条，4 分有 19142 条，5 分有 57328 条。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 9973,
+      "tokens_out": 93,
+      "cost": 0.0,
+      "elapsed_ms": 8428.2,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q30",
+      "difficulty": "medium",
+      "question": "卖家数最多的 5 个州是哪些？",
+      "answer": "抱歉，由于系统错误，我无法重新计算出卖家数最多的 5 个州的比率。请您稍后再试或联系系统管理员。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 6,
+      "tokens_in": 19908,
+      "tokens_out": 190,
+      "cost": 0.0,
+      "elapsed_ms": 18836.6,
+      "error_kinds": [
+        "unsourced_number",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "5"
+      ]
+    },
+    {
+      "id": "q31",
+      "difficulty": "medium",
+      "question": "商品数最多的 5 个商品类目是哪些？",
+      "answer": "商品数最多的 5 个商品类目及其占比分别是：\n\n1. bed_bath_table：3029，占比 38.76%\n2. sports_leisure：2867，占比 36.89%\n3. furniture_decor：2657，占比 33.94%\n4. health_beauty：2444，占比 31.23%\n5. housewares：2335，占比 29.67%",
+      "correct": true,
+      "coverage": 0.312,
+      "steps": 8,
+      "tokens_in": 29777,
+      "tokens_out": 295,
+      "cost": 0.0,
+      "elapsed_ms": 24129.9,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number",
+        "unknown_column",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "5",
+        "1",
+        "38.76",
+        "2",
+        "36.89",
+        "3",
+        "33.94",
+        "4",
+        "31.23",
+        "5",
+        "29.67"
+      ]
+    },
+    {
+      "id": "q32",
+      "difficulty": "medium",
+      "question": "从下单到送达平均需要多少天？保留两位小数。",
+      "answer": "从下单到送达的平均天数为 9.00 天。这个结果是基于订单的送达日期和下单日期计算得出的。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 3,
+      "tokens_in": 9703,
+      "tokens_out": 182,
+      "cost": 0.0,
+      "elapsed_ms": 13800.0,
+      "error_kinds": [
+        "unknown_function"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q33",
+      "difficulty": "medium",
+      "question": "各订单状态的平均评价分数是多少？按分数降序。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 35112,
+      "tokens_out": 205,
+      "cost": 0.0,
+      "elapsed_ms": 22626.1,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q34",
+      "difficulty": "medium",
+      "question": "2018 年订单量最大的月份是哪个月？有多少单？",
+      "answer": "2018年订单量最大的月份是8月，占比12.06%。",
+      "correct": true,
+      "coverage": 0.333,
+      "steps": 4,
+      "tokens_in": 12742,
+      "tokens_out": 228,
+      "cost": 0.0,
+      "elapsed_ms": 17054.6,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "2018"
+      ]
+    },
+    {
+      "id": "q35",
+      "difficulty": "medium",
+      "question": "平均运费最高的 5 个客户州是哪些？",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 31986,
+      "tokens_out": 469,
+      "cost": 0.0,
+      "elapsed_ms": 42254.0,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q08",
+      "difficulty": "hard",
+      "question": "复购客户（下过 2 单及以上的真实客户）占全部客户的比例是多少？给百分比，保留两位小数。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 30841,
+      "tokens_out": 390,
+      "cost": 0.0,
+      "elapsed_ms": 18491.0,
+      "error_kinds": [
+        "unknown_column",
+        "repeated_call",
+        "suspicious_zero",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q09",
+      "difficulty": "hard",
+      "question": "配送延迟（实际送达时间晚于承诺日期）的订单，差评率（评分 1-2 分）是多少？给百分比。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 32707,
+      "tokens_out": 320,
+      "cost": 0.0,
+      "elapsed_ms": 20481.7,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number",
+        "aggregate_without_from",
+        "aggregate_without_from",
+        "aggregate_without_from"
+      ],
+      "unsourced": [
+        "0.19"
+      ]
+    },
+    {
+      "id": "q10",
+      "difficulty": "hard",
+      "question": "哪个州的客户贡献的支付金额最高？给出该州和总金额（保留两位小数）。",
+      "answer": "圣保罗州的客户贡献的支付金额最高，总金额为5998226.96元。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 5,
+      "tokens_in": 16910,
+      "tokens_out": 117,
+      "cost": 0.0,
+      "elapsed_ms": 23171.2,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q36",
+      "difficulty": "hard",
+      "question": "成交额最高的 5 个卖家是哪些？给出卖家 id 和商品金额合计。",
+      "answer": "成交额最高的 5 个卖家分别是：\n\n1. 卖家 ID：4869f7a5dfa277a7dca6462dcf3b52b2，商品金额合计：249640.7\n2. 卖家 ID：7c67e1448b00f6e969d365cea6b010ab，商品金额合计：239536.44\n3. 卖家 ID：53243585a1d6dc2643021fd1853d8905，商品金额合计：235856.68\n4. 卖家 ID：4a3ca9315b744ce9f8e9374361493884，商品金额合计：235539.96\n5. 卖家 ID：fa1c13f2614d7b5c4749cbc52fecda94，商品金额合计：204084.73\n\n以上数据均包含商品价格和运费。",
+      "correct": true,
+      "coverage": 0.9,
+      "steps": 3,
+      "tokens_in": 9976,
+      "tokens_out": 272,
+      "cost": 0.0,
+      "elapsed_ms": 16671.9,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q37",
+      "difficulty": "hard",
+      "question": "2018 年各月订单量相对上月的增长率（百分比）是多少？按月份升序。",
+      "answer": "2018年各月订单量相对上月的增长率均为0%。",
+      "correct": true,
+      "coverage": 0.5,
+      "steps": 8,
+      "tokens_in": 33675,
+      "tokens_out": 721,
+      "cost": 0.0,
+      "elapsed_ms": 47668.4,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q38",
+      "difficulty": "hard",
+      "question": "人均订单数（订单数/客户数）最高的 5 个州是哪些？",
+      "answer": "人均订单数最高的 5 个州分别是：图亚雷廷戈州（TO）、圣保罗州（SP）、塞阿拉州（SE）、南里奥格兰德州（RS）和圣卡塔琳娜州（SC），人均订单数比率为 100%。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 4,
+      "tokens_in": 12864,
+      "tokens_out": 412,
+      "cost": 0.0,
+      "elapsed_ms": 36069.5,
+      "error_kinds": [
+        "unsourced_number"
+      ],
+      "unsourced": [
+        "5"
+      ]
+    },
+    {
+      "id": "q39",
+      "difficulty": "hard",
+      "question": "差评率（1-2 分占比）最高的 5 个商品类目是哪些？要求至少有 100 条评价。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 33527,
+      "tokens_out": 387,
+      "cost": 0.0,
+      "elapsed_ms": 31038.0,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q40",
+      "difficulty": "hard",
+      "question": "已送达订单中，配送延迟（晚于承诺日期）的比例是多少？给百分比。",
+      "answer": "已送达订单中，配送延迟的比例是 0.34%。这个比例是基于订单状态为 'delivered' 且实际配送日期晚于承诺日期的订单数量，与所有已送达订单数量的比例计算得出的。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 35868,
+      "tokens_out": 333,
+      "cost": 0.0,
+      "elapsed_ms": 36053.9,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q41",
+      "difficulty": "hard",
+      "question": "平均支付金额最高的 3 种支付方式是什么？各多少钱？",
+      "answer": "抱歉，我之前的回答中提到的数字 3 并没有在查询结果中找到出处。根据查询结果，平均支付金额最高的 3 种支付方式分别是：信用卡、支票和借记卡，平均支付金额分别为 163.32 元、145.03 元和 142.57 元。",
+      "correct": true,
+      "coverage": 0.6,
+      "steps": 5,
+      "tokens_in": 16552,
+      "tokens_out": 244,
+      "cost": 0.0,
+      "elapsed_ms": 17905.6,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "3",
+        "3"
+      ]
+    },
+    {
+      "id": "q42",
+      "difficulty": "hard",
+      "question": "同一客户相邻两次下单平均间隔多少天？保留两位小数。",
+      "answer": "在尝试计算同一客户相邻两次下单的平均间隔天数时，我遇到了一个技术问题，无法正确使用窗口函数 `LAG()`。这导致无法执行查询。由于我无法使用常规的 SQL 方法来解决这个问题，我需要考虑其他可能的解决方案或方法来获取所需的数据。我将重新评估问题并尝试其他方法。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 6,
+      "tokens_in": 22798,
+      "tokens_out": 698,
+      "cost": 0.0,
+      "elapsed_ms": 42716.6,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number",
+        "sqlite_error",
+        "sqlite_error",
+        "sqlite_error"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q43",
+      "difficulty": "hard",
+      "question": "平均评价分最高的 5 个卖家是哪些？要求至少有 50 条评价。",
+      "answer": "查询失败，原因可能是 `order_reviews` 表中的 `order_id` 列与 `sellers` 表的 `seller_id` 列无法正确关联。请检查这两个列是否可以用于连接查询。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 6,
+      "tokens_in": 23131,
+      "tokens_out": 153,
+      "cost": 0.0,
+      "elapsed_ms": 17560.8,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "empty_result",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q44",
+      "difficulty": "hard",
+      "question": "差评率最高的 5 个客户州是哪些？要求至少有 200 条评价。",
+      "answer": "差评率最高的 5 个客户州分别是：圣保罗州（SP），里约热内卢州（RJ），米纳斯吉拉斯州（MG），南里奥格兰德州（RS）和巴拉那州（PR）。这些州的差评数量分别为 41,690、12,765、11,625、5,483 和 5,038。这里只考虑了有至少 200 条评价的客户州。",
+      "correct": false,
+      "coverage": 0.143,
+      "steps": 7,
+      "tokens_in": 29488,
+      "tokens_out": 265,
+      "cost": 0.0,
+      "elapsed_ms": 29231.8,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "empty_result",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q45",
+      "difficulty": "hard",
+      "question": "平台整体的运费占商品金额的比例是多少？给百分比。",
+      "answer": "平台整体的运费占商品金额的比例是 16.57%。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 4,
+      "tokens_in": 14467,
+      "tokens_out": 81,
+      "cost": 0.0,
+      "elapsed_ms": 7896.9,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q46",
+      "difficulty": "hard",
+      "question": "2018 年上半年（1-6 月）相比 2017 年上半年的订单量增长率是多少？给百分比。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 32437,
+      "tokens_out": 420,
+      "cost": 0.0,
+      "elapsed_ms": 38590.3,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number",
+        "suspicious_ratio",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "1",
+        "-6",
+        "1.82"
+      ]
+    },
+    {
+      "id": "q47",
+      "difficulty": "hard",
+      "question": "平均单件商品价格最高的 3 个类目是哪些？要求至少有 100 件商品。",
+      "answer": "订单商品总数为 112650 件。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 7,
+      "tokens_in": 24150,
+      "tokens_out": 224,
+      "cost": 0.0,
+      "elapsed_ms": 22030.5,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "ambiguous_column",
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q11",
+      "difficulty": "ambiguous",
+      "question": "销量最好的商品类目是什么？请说明你用什么口径衡量\"销量\"。",
+      "answer": "销量最好的商品类目是“cama_mesa_banho”，总销量为13,665件。这里的“销量”是指订单中商品项目的数量。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 4,
+      "tokens_in": 12935,
+      "tokens_out": 216,
+      "cost": 0.0,
+      "elapsed_ms": 10622.8,
+      "error_kinds": [
+        "unknown_column",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q12",
+      "difficulty": "ambiguous",
+      "question": "各州的平均客单价是多少？列出前 5 名并说明客单价的口径。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 31873,
+      "tokens_out": 460,
+      "cost": 0.0,
+      "elapsed_ms": 35334.9,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "misuse_aggregate",
+        "ambiguous_column",
+        "misuse_aggregate",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q48",
+      "difficulty": "ambiguous",
+      "question": "客户满意度最高的州是哪个？请说明口径。",
+      "answer": "根据查询结果，满意度最高的州是帕拉伊巴州（PA），平均评分为4.0188。该口径是基于订单评论中的评分计算得出的，排除了已取消的订单，并考虑了所有订单。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 2,
+      "tokens_in": 6373,
+      "tokens_out": 270,
+      "cost": 0.0,
+      "elapsed_ms": 22418.5,
+      "error_kinds": [],
+      "unsourced": []
+    },
+    {
+      "id": "q49",
+      "difficulty": "ambiguous",
+      "question": "哪些商品类目\"卖得多但评分低\"？请说明判断口径。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 32000,
+      "tokens_out": 647,
+      "cost": 0.0,
+      "elapsed_ms": 43820.2,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call",
+        "unknown_column"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q50",
+      "difficulty": "ambiguous",
+      "question": "平台最赚钱的商品类目是哪个？请说明你用什么指标衡量\"赚钱\"。",
+      "answer": "很抱歉，由于数据结构的问题，我无法直接计算出每个商品类目的总利润。在 `order_items` 表中没有找到 `quantity` 列，而 `products` 表中没有包含订单数量或与订单相关的信息。因此，我无法完成这个查询。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 6,
+      "tokens_in": 21115,
+      "tokens_out": 328,
+      "cost": 0.0,
+      "elapsed_ms": 25037.1,
+      "error_kinds": [
+        "unsourced_number",
+        "unknown_column",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q51",
+      "difficulty": "ambiguous",
+      "question": "表现最好的卖家是谁？请说明你的评价口径。",
+      "answer": "表现最好的卖家是 seller_id 为 4869f7a5dfa277a7dca6462dcf3b52b2 的卖家，其销售额为 249640.7。这个评价口径是基于所有已完成的订单（排除 canceled 订单），计算了每个卖家的总销售额（商品价格 + 运费）。",
+      "correct": false,
+      "coverage": 0.2,
+      "steps": 6,
+      "tokens_in": 21798,
+      "tokens_out": 401,
+      "cost": 0.0,
+      "elapsed_ms": 31530.1,
+      "error_kinds": [
+        "unknown_column",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q52",
+      "difficulty": "ambiguous",
+      "question": "物流最快的州是哪个？请说明口径。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 31297,
+      "tokens_out": 239,
+      "cost": 0.0,
+      "elapsed_ms": 28738.9,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "empty_result",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q53",
+      "difficulty": "ambiguous",
+      "question": "销售出现明显异常的月份有哪些？请说明异常的定义。",
+      "answer": "销售出现明显异常的月份有2017年11月和2018年2月。这两个月份的订单数量与其它月份相比有显著差异，具体表现为订单数量较多或较少。异常的定义是订单数量与其它月份相比有显著差异，可能是由于促销活动、季节性因素或其他原因导致的。",
+      "correct": true,
+      "coverage": 0.5,
+      "steps": 4,
+      "tokens_in": 14927,
+      "tokens_out": 161,
+      "cost": 0.0,
+      "elapsed_ms": 16613.4,
+      "error_kinds": [
+        "repeated_call",
+        "repeated_call",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q54",
+      "difficulty": "ambiguous",
+      "question": "有多少活跃客户？请说明\"活跃\"的定义。",
+      "answer": "有96478个活跃客户。这里的“活跃”定义为在订单表中至少有一个已交付（delivered）状态的订单的客户。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 5,
+      "tokens_in": 16799,
+      "tokens_out": 187,
+      "cost": 0.0,
+      "elapsed_ms": 15084.2,
+      "error_kinds": [
+        "repeated_call",
+        "unknown_column",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q55",
+      "difficulty": "ambiguous",
+      "question": "2018 年相比 2017 年增长了多少？请说明增长口径。",
+      "answer": "（已达最大步数 8，未能收敛。最后一步模型输出：空）",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 8,
+      "tokens_in": 29501,
+      "tokens_out": 401,
+      "cost": 0.0,
+      "elapsed_ms": 46222.6,
+      "error_kinds": [
+        "unknown_column",
+        "repeated_call",
+        "repeated_call",
+        "repeated_call",
+        "unsourced_number",
+        "repeated_call"
+      ],
+      "unsourced": [
+        "2018",
+        "2017",
+        "20.5"
+      ]
+    },
+    {
+      "id": "q56",
+      "difficulty": "ambiguous",
+      "question": "平台的平均客单价是多少？请说明客单价口径。",
+      "answer": "平台的平均客单价为 16057.76 元。客单价口径为订单中所有商品的价格和运费之和除以订单数。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 4,
+      "tokens_in": 12681,
+      "tokens_out": 211,
+      "cost": 0.0,
+      "elapsed_ms": 15956.2,
+      "error_kinds": [
+        "suspicious_ratio",
+        "suspicious_ratio",
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q57",
+      "difficulty": "ambiguous",
+      "question": "最主流的支付方式是哪种？占多少比例？",
+      "answer": "最主流的支付方式是信用卡（credit_card），占比约为 73.92%。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 5,
+      "tokens_in": 16392,
+      "tokens_out": 146,
+      "cost": 0.0,
+      "elapsed_ms": 16708.6,
+      "error_kinds": [
+        "repeated_call",
+        "unsourced_number"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q58",
+      "difficulty": "ambiguous",
+      "question": "评价最差的月份是哪个月？请说明口径。",
+      "answer": "很抱歉，由于技术原因，我无法准确计算出2016年9月的平均评分。如果您需要这个数据，建议您直接查询数据库。",
+      "correct": true,
+      "coverage": 0.5,
+      "steps": 8,
+      "tokens_in": 28144,
+      "tokens_out": 472,
+      "cost": 0.0,
+      "elapsed_ms": 40593.4,
+      "error_kinds": [
+        "unsourced_number",
+        "repeated_call",
+        "unknown_column",
+        "repeated_call",
+        "suspicious_zero",
+        "suspicious_zero"
+      ],
+      "unsourced": [
+        "9"
+      ]
+    },
+    {
+      "id": "q59",
+      "difficulty": "ambiguous",
+      "question": "客户主要集中在哪个州？",
+      "answer": "客户主要集中在圣保罗州（SP），共有 41,746 名客户。",
+      "correct": true,
+      "coverage": 1.0,
+      "steps": 3,
+      "tokens_in": 9656,
+      "tokens_out": 63,
+      "cost": 0.0,
+      "elapsed_ms": 7515.7,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    },
+    {
+      "id": "q60",
+      "difficulty": "ambiguous",
+      "question": "商品描述长度与评价分数有关系吗？请说明你的分析口径。",
+      "answer": "商品描述长度与评价分数之间没有明显的直接关系。在分析中，我们考虑了商品描述长度和评价分数之间的关系，但结果显示两者之间没有显著的相关性。这可能意味着商品描述长度并不是影响评价分数的关键因素。需要注意的是，这里只分析了部分数据，可能存在其他因素对评价分数有更大的影响。",
+      "correct": false,
+      "coverage": 0.0,
+      "steps": 4,
+      "tokens_in": 14544,
+      "tokens_out": 251,
+      "cost": 0.0,
+      "elapsed_ms": 20379.7,
+      "error_kinds": [
+        "repeated_call"
+      ],
+      "unsourced": []
+    }
+  ]
+}

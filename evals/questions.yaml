@@ -1,3 +1,7 @@
+# 60 题评测集：easy 15 / medium 15 / hard 15 / ambiguous 15
+# 金标准由 ref_sql 现场执行得到（execution-based），不手写答案。
+# ambiguous 题的 ref_sql 代表"一种主流口径"，模型若给出其他口径且自洽，需人工复核。
+
 - id: q01
   difficulty: easy
   question: 一共有多少个订单？
@@ -12,6 +16,66 @@
   difficulty: easy
   question: 被取消（canceled）的订单占全部订单的比例是多少？请给百分比，保留两位小数。
   ref_sql: select round(100.0 * sum(case when order_status = 'canceled' then 1 else 0 end) / count(*), 2) from orders
+
+- id: q13
+  difficulty: easy
+  question: 一共有多少个卖家？
+  ref_sql: select count(*) from sellers
+
+- id: q14
+  difficulty: easy
+  question: 一共有多少种不同的商品？
+  ref_sql: select count(distinct product_id) from products
+
+- id: q15
+  difficulty: easy
+  question: 状态为已送达（delivered）的订单有多少个？
+  ref_sql: select count(*) from orders where order_status = 'delivered'
+
+- id: q16
+  difficulty: easy
+  question: 平均每笔支付金额是多少？保留两位小数。
+  ref_sql: select round(avg(payment_value), 2) from order_payments
+
+- id: q17
+  difficulty: easy
+  question: 评价分数的最高分和最低分分别是多少？
+  ref_sql: select max(review_score), min(review_score) from order_reviews
+
+- id: q18
+  difficulty: easy
+  question: 客户覆盖了多少个州？
+  ref_sql: select count(distinct customer_state) from customers
+
+- id: q19
+  difficulty: easy
+  question: 单笔订单商品的最高运费是多少？保留两位小数。
+  ref_sql: select round(max(freight_value), 2) from order_items
+
+- id: q20
+  difficulty: easy
+  question: 最早的一笔订单是什么时候下的？
+  ref_sql: select min(order_purchase_timestamp) from orders
+
+- id: q21
+  difficulty: easy
+  question: 有多少条评价是 5 分？
+  ref_sql: select count(*) from order_reviews where review_score = 5
+
+- id: q22
+  difficulty: easy
+  question: 信用卡（credit_card）支付的总金额是多少？保留两位小数。
+  ref_sql: select round(sum(payment_value), 2) from order_payments where payment_type = 'credit_card'
+
+- id: q23
+  difficulty: easy
+  question: 商品的平均重量是多少克？保留两位小数。
+  ref_sql: select round(avg(product_weight_g), 2) from products
+
+- id: q24
+  difficulty: easy
+  question: 有多少个订单包含 2 件及以上的商品？
+  ref_sql: select count(*) from (select order_id from order_items group by 1 having count(*) >= 2)
 
 - id: q04
   difficulty: medium
@@ -32,6 +96,76 @@
   difficulty: medium
   question: 平均每条订单的评价分数是多少？保留两位小数。
   ref_sql: select round(avg(review_score), 2) from order_reviews
+
+- id: q25
+  difficulty: medium
+  question: 客户数最多的 5 个州是哪些？各有多少客户？
+  ref_sql: select customer_state, count(*) n from customers group by 1 order by n desc limit 5
+
+- id: q26
+  difficulty: medium
+  question: 2017 年每个月的支付总额是多少？按月份升序。
+  ref_sql: |
+    select substr(o.order_purchase_timestamp, 1, 7) ym, round(sum(p.payment_value), 2) total
+    from orders o join order_payments p on p.order_id = o.order_id
+    where o.order_purchase_timestamp like '2017%'
+    group by 1 order by 1
+
+- id: q27
+  difficulty: medium
+  question: 平均每个订单包含多少件商品？保留两位小数。
+  ref_sql: select round(avg(n), 2) from (select order_id, count(*) n from order_items group by 1)
+
+- id: q28
+  difficulty: medium
+  question: 各支付方式的平均分期数是多少？按分期数降序。
+  ref_sql: select payment_type, round(avg(payment_installments), 2) avg_inst from order_payments group by 1 order by avg_inst desc
+
+- id: q29
+  difficulty: medium
+  question: 评价分数 1 到 5 分各有多少条？
+  ref_sql: select review_score, count(*) n from order_reviews group by 1 order by 1
+
+- id: q30
+  difficulty: medium
+  question: 卖家数最多的 5 个州是哪些？
+  ref_sql: select seller_state, count(*) n from sellers group by 1 order by n desc limit 5
+
+- id: q31
+  difficulty: medium
+  question: 商品数最多的 5 个商品类目是哪些？
+  ref_sql: select product_category_name, count(*) n from products where product_category_name is not null group by 1 order by n desc limit 5
+
+- id: q32
+  difficulty: medium
+  question: 从下单到送达平均需要多少天？保留两位小数。
+  ref_sql: |
+    select round(avg(julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp)), 2)
+    from orders
+    where order_delivered_customer_date is not null and order_purchase_timestamp is not null
+
+- id: q33
+  difficulty: medium
+  question: 各订单状态的平均评价分数是多少？按分数降序。
+  ref_sql: |
+    select o.order_status, round(avg(r.review_score), 2) avg_score
+    from orders o join order_reviews r on r.order_id = o.order_id
+    group by 1 order by avg_score desc
+
+- id: q34
+  difficulty: medium
+  question: 2018 年订单量最大的月份是哪个月？有多少单？
+  ref_sql: select substr(order_purchase_timestamp, 1, 7) ym, count(*) n from orders where order_purchase_timestamp like '2018%' group by 1 order by n desc limit 1
+
+- id: q35
+  difficulty: medium
+  question: 平均运费最高的 5 个客户州是哪些？
+  ref_sql: |
+    select c.customer_state, round(avg(i.freight_value), 2) avg_freight
+    from customers c
+    join orders o on o.customer_id = c.customer_id
+    join order_items i on i.order_id = o.order_id
+    group by 1 order by avg_freight desc limit 5
 
 - id: q08
   difficulty: hard
@@ -61,6 +195,114 @@
     join order_payments p on p.order_id = o.order_id
     group by 1 order by total desc limit 1
 
+- id: q36
+  difficulty: hard
+  question: 成交额最高的 5 个卖家是哪些？给出卖家 id 和商品金额合计。
+  ref_sql: select seller_id, round(sum(price), 2) gmv from order_items group by 1 order by gmv desc limit 5
+
+- id: q37
+  difficulty: hard
+  question: 2018 年各月订单量相对上月的增长率（百分比）是多少？按月份升序。
+  ref_sql: |
+    with m as (select substr(order_purchase_timestamp, 1, 7) ym, count(*) n
+               from orders where order_purchase_timestamp like '2018%' group by 1),
+         g as (select ym, n, lag(n) over (order by ym) prev from m)
+    select ym, n, round(100.0 * (n - prev) / prev, 2) growth_pct from g order by ym
+
+- id: q38
+  difficulty: hard
+  question: 人均订单数（订单数/客户数）最高的 5 个州是哪些？
+  ref_sql: |
+    select c.customer_state,
+           round(1.0 * count(o.order_id) / count(distinct c.customer_unique_id), 2) orders_per_customer
+    from customers c join orders o on o.customer_id = c.customer_id
+    group by 1 order by 2 desc limit 5
+
+- id: q39
+  difficulty: hard
+  question: 差评率（1-2 分占比）最高的 5 个商品类目是哪些？要求至少有 100 条评价。
+  ref_sql: |
+    select coalesce(t.product_category_name_english, p.product_category_name) cat,
+           round(100.0 * sum(case when r.review_score <= 2 then 1 else 0 end) / count(*), 2) bad_pct,
+           count(*) n
+    from order_items i
+    join products p on p.product_id = i.product_id
+    join order_reviews r on r.order_id = i.order_id
+    left join category_translation t on t.product_category_name = p.product_category_name
+    group by 1 having count(*) >= 100 order by bad_pct desc limit 5
+
+- id: q40
+  difficulty: hard
+  question: 已送达订单中，配送延迟（晚于承诺日期）的比例是多少？给百分比。
+  ref_sql: |
+    select round(100.0 * sum(case when order_delivered_customer_date > order_estimated_delivery_date
+                                  then 1 else 0 end) / count(*), 2)
+    from orders
+    where order_status = 'delivered' and order_delivered_customer_date is not null
+
+- id: q41
+  difficulty: hard
+  question: 平均支付金额最高的 3 种支付方式是什么？各多少钱？
+  ref_sql: select payment_type, round(avg(payment_value), 2) aov, count(*) n from order_payments group by 1 order by aov desc limit 3
+
+- id: q42
+  difficulty: hard
+  question: 同一客户相邻两次下单平均间隔多少天？保留两位小数。
+  ref_sql: |
+    with o as (select c.customer_unique_id uid, o.order_purchase_timestamp ts
+               from customers c join orders o on o.customer_id = c.customer_id),
+         s as (select uid, julianday(ts) - julianday(lag(ts) over (partition by uid order by ts)) gap from o)
+    select round(avg(gap), 2) from s where gap is not null
+
+- id: q43
+  difficulty: hard
+  question: 平均评价分最高的 5 个卖家是哪些？要求至少有 50 条评价。
+  ref_sql: |
+    select i.seller_id, round(avg(r.review_score), 2) avg_score, count(*) n
+    from order_items i join order_reviews r on r.order_id = i.order_id
+    group by 1 having count(*) >= 50 order by avg_score desc limit 5
+
+- id: q44
+  difficulty: hard
+  question: 差评率最高的 5 个客户州是哪些？要求至少有 200 条评价。
+  ref_sql: |
+    select c.customer_state,
+           round(100.0 * sum(case when r.review_score <= 2 then 1 else 0 end) / count(*), 2) bad_pct,
+           count(*) n
+    from customers c
+    join orders o on o.customer_id = c.customer_id
+    join order_reviews r on r.order_id = o.order_id
+    group by 1 having count(*) >= 200 order by bad_pct desc limit 5
+
+- id: q45
+  difficulty: hard
+  question: 平台整体的运费占商品金额的比例是多少？给百分比。
+  ref_sql: select round(100.0 * sum(freight_value) / sum(price), 2) from order_items
+
+- id: q46
+  difficulty: hard
+  question: 2018 年上半年（1-6 月）相比 2017 年上半年的订单量增长率是多少？给百分比。
+  ref_sql: |
+    select round(100.0 * (
+        sum(case when substr(order_purchase_timestamp, 1, 4) = '2018'
+                  and substr(order_purchase_timestamp, 6, 2) <= '06' then 1 else 0 end)
+      - sum(case when substr(order_purchase_timestamp, 1, 4) = '2017'
+                  and substr(order_purchase_timestamp, 6, 2) <= '06' then 1 else 0 end))
+      / sum(case when substr(order_purchase_timestamp, 1, 4) = '2017'
+                  and substr(order_purchase_timestamp, 6, 2) <= '06' then 1 else 0 end), 2)
+    from orders
+
+- id: q47
+  difficulty: hard
+  question: 平均单件商品价格最高的 3 个类目是哪些？要求至少有 100 件商品。
+  ref_sql: |
+    select coalesce(t.product_category_name_english, p.product_category_name) cat,
+           round(avg(i.price), 2) avg_price, count(*) n
+    from order_items i
+    join products p on p.product_id = i.product_id
+    left join category_translation t on t.product_category_name = p.product_category_name
+    group by 1 having count(*) >= 100 order by avg_price desc limit 3
+
 - id: q11
   difficulty: ambiguous
   question: 销量最好的商品类目是什么？请说明你用什么口径衡量"销量"。
@@ -82,3 +324,122 @@
     join orders o on o.customer_id = c.customer_id
     join order_payments p on p.order_id = o.order_id
     group by 1 order by aov desc limit 5
+
+- id: q48
+  difficulty: ambiguous
+  question: 客户满意度最高的州是哪个？请说明口径。
+  ref_sql: |
+    select c.customer_state, round(avg(r.review_score), 2) avg_score, count(*) n
+    from customers c
+    join orders o on o.customer_id = c.customer_id
+    join order_reviews r on r.order_id = o.order_id
+    group by 1 having count(*) >= 500 order by avg_score desc limit 1
+
+- id: q49
+  difficulty: ambiguous
+  question: 哪些商品类目"卖得多但评分低"？请说明判断口径。
+  ref_sql: |
+    select cat, n, bad_pct from (
+      select coalesce(t.product_category_name_english, p.product_category_name) cat,
+             count(*) n,
+             round(100.0 * sum(case when r.review_score <= 2 then 1 else 0 end) / count(*), 2) bad_pct
+      from order_items i
+      join products p on p.product_id = i.product_id
+      join order_reviews r on r.order_id = i.order_id
+      left join category_translation t on t.product_category_name = p.product_category_name
+      group by 1 order by n desc limit 20)
+    order by bad_pct desc limit 1
+
+- id: q50
+  difficulty: ambiguous
+  question: 平台最赚钱的商品类目是哪个？请说明你用什么指标衡量"赚钱"。
+  ref_sql: |
+    select coalesce(t.product_category_name_english, p.product_category_name) cat,
+           round(sum(i.price), 2) gmv
+    from order_items i
+    join products p on p.product_id = i.product_id
+    left join category_translation t on t.product_category_name = p.product_category_name
+    group by 1 order by gmv desc limit 1
+
+- id: q51
+  difficulty: ambiguous
+  question: 表现最好的卖家是谁？请说明你的评价口径。
+  ref_sql: |
+    select i.seller_id, round(avg(r.review_score), 2) avg_score, count(*) n
+    from order_items i join order_reviews r on r.order_id = i.order_id
+    group by 1 having count(*) >= 100 order by avg_score desc, n desc limit 1
+
+- id: q52
+  difficulty: ambiguous
+  question: 物流最快的州是哪个？请说明口径。
+  ref_sql: |
+    select c.customer_state,
+           round(avg(julianday(o.order_delivered_customer_date) - julianday(o.order_purchase_timestamp)), 2) days,
+           count(*) n
+    from customers c join orders o on o.customer_id = c.customer_id
+    where o.order_delivered_customer_date is not null
+    group by 1 having count(*) >= 200 order by days asc limit 1
+
+- id: q53
+  difficulty: ambiguous
+  question: 销售出现明显异常的月份有哪些？请说明异常的定义。
+  ref_sql: |
+    with m as (select substr(order_purchase_timestamp, 1, 7) ym, count(*) n from orders group by 1),
+         g as (select ym, n, round(100.0 * (n - lag(n) over (order by ym)) / lag(n) over (order by ym), 2) pct from m)
+    select ym, n, pct from g where abs(pct) > 30 order by ym
+
+- id: q54
+  difficulty: ambiguous
+  question: 有多少活跃客户？请说明"活跃"的定义。
+  ref_sql: |
+    select count(distinct c.customer_unique_id)
+    from customers c join orders o on o.customer_id = c.customer_id
+    where o.order_purchase_timestamp >= (select datetime(max(order_purchase_timestamp), '-90 days') from orders)
+
+- id: q55
+  difficulty: ambiguous
+  question: 2018 年相比 2017 年增长了多少？请说明增长口径。
+  ref_sql: |
+    select round(100.0 * (sum(case when order_purchase_timestamp like '2018%' then 1 else 0 end)
+                        - sum(case when order_purchase_timestamp like '2017%' then 1 else 0 end))
+               / sum(case when order_purchase_timestamp like '2017%' then 1 else 0 end), 2)
+    from orders
+
+- id: q56
+  difficulty: ambiguous
+  question: 平台的平均客单价是多少？请说明客单价口径。
+  ref_sql: select round(sum(payment_value) / (select count(*) from orders), 2) from order_payments
+
+- id: q57
+  difficulty: ambiguous
+  question: 最主流的支付方式是哪种？占多少比例？
+  ref_sql: |
+    select payment_type,
+           round(100.0 * count(distinct order_id) / (select count(distinct order_id) from order_payments), 2) pct
+    from order_payments group by 1 order by pct desc limit 1
+
+- id: q58
+  difficulty: ambiguous
+  question: 评价最差的月份是哪个月？请说明口径。
+  ref_sql: |
+    select substr(review_creation_date, 1, 7) ym, round(avg(review_score), 2) avg_score, count(*) n
+    from order_reviews where review_creation_date is not null
+    group by 1 having count(*) >= 200 order by avg_score asc limit 1
+
+- id: q59
+  difficulty: ambiguous
+  question: 客户主要集中在哪个州？
+  ref_sql: select customer_state, count(*) n from customers group by 1 order by n desc limit 1
+
+- id: q60
+  difficulty: ambiguous
+  question: 商品描述长度与评价分数有关系吗？请说明你的分析口径。
+  ref_sql: |
+    select case when p.product_description_lenght < 500 then 'short'
+                when p.product_description_lenght < 1500 then 'medium'
+                else 'long' end bucket,
+           round(avg(r.review_score), 2) avg_score, count(*) n
+    from order_items i
+    join products p on p.product_id = i.product_id
+    join order_reviews r on r.order_id = i.order_id
+    group by 1 order by 1
