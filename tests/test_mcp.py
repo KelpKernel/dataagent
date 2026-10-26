@@ -40,11 +40,11 @@ def run_session(db_path: Path, messages: list[dict], *, with_api_key: bool = Fal
         **os.environ,
         "PYTHONPATH": str(SRC),
         "PYTHONIOENCODING": "utf-8",
-        "DATAAGENT_DB": "",
-        "DATAAGENT_API_KEY": "test-key" if with_api_key else "",
+        "LITMUS_DB": "",
+        "LITMUS_API_KEY": "test-key" if with_api_key else "",
     }
     proc = subprocess.run(
-        [sys.executable, "-m", "dataagent.mcp_server", str(db_path)],
+        [sys.executable, "-m", "litmus.mcp_server", str(db_path)],
         input=payload,
         capture_output=True,
         text=True,
@@ -77,7 +77,7 @@ def test_initialize_and_tools_list(db):
 
     init = responses[0]["result"]
     assert init["protocolVersion"] == "2024-11-05"
-    assert init["serverInfo"]["name"] == "dataagent"
+    assert init["serverInfo"]["name"] == "litmus"
     assert "tools" in init["capabilities"]
 
     names = {tool["name"] for tool in responses[1]["result"]["tools"]}
@@ -157,7 +157,7 @@ def test_stdout_stays_clean(db):
     for line in proc.stdout.splitlines():
         if line.strip():
             json.loads(line)  # 抛异常即失败
-    assert "dataagent-mcp" in proc.stderr
+    assert "litmus-mcp" in proc.stderr
 
 
 def test_empty_result_carries_hint(db):

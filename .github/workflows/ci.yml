@@ -31,14 +31,14 @@ jobs:
 
       - name: Demo database works out of the box
         # 这条是 README 的承诺：clone 下来不配任何东西也能跑。
-        # 没有 .env、没有 DATAAGENT_DB，应该自动落到 data/demo.sqlite。
+        # 没有 .env、没有 LITMUS_DB，应该自动落到 data/demo.sqlite。
         run: |
-          PYTHONPATH=src python -m dataagent.cli schema > /tmp/schema.txt
+          PYTHONPATH=src python -m litmus.cli schema > /tmp/schema.txt
           head -n 5 /tmp/schema.txt
           if grep -q "^### _meta" /tmp/schema.txt; then
             echo "内部表 _meta 不应出现在 schema 文档里"; exit 1
           fi
-          PYTHONPATH=src python -m dataagent.cli sql \
+          PYTHONPATH=src python -m litmus.cli sql \
             "select count(*) as orders from orders" > /tmp/out.txt 2>/tmp/err.txt
           cat /tmp/out.txt /tmp/err.txt
           grep -q "5108" /tmp/out.txt
@@ -51,7 +51,7 @@ jobs:
         run: |
           PYTHONPATH=src python - <<'PY'
           import sqlite3, tempfile, pathlib
-          from dataagent.sandbox import Sandbox
+          from litmus.sandbox import Sandbox
 
           db = pathlib.Path(tempfile.mkdtemp()) / "t.sqlite"
           conn = sqlite3.connect(db)

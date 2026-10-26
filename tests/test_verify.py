@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from dataagent.verify import collect_from_values, unsourced_numbers
+from litmus.verify import collect_from_values, unsourced_numbers
 
 
 def test_flags_mental_arithmetic():

@@ -24,8 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "evals"))
 
-from dataagent.config import Config  # noqa: E402
-from dataagent.sandbox import Sandbox  # noqa: E402
+from litmus.config import Config  # noqa: E402
+from litmus.sandbox import Sandbox  # noqa: E402
 from run_eval import gold_from_sql, judge, load_questions  # noqa: E402
 
 

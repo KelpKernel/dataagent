@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from dataagent.agent import _assistant_message
-from dataagent.llm import AssistantTurn, ToolCall
+from litmus.agent import _assistant_message
+from litmus.llm import AssistantTurn, ToolCall
 
 
 def test_no_tool_calls_omits_field():

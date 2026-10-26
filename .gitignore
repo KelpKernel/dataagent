@@ -2,6 +2,8 @@
 __pycache__/
 *.pyc
 .env
+.litmus*/
+# 旧名工作目录也忽略：改名后本地已有的历史 trace 不该变成 untracked
 .dataagent*/
 evals/results/
 *.sqlite

@@ -1,6 +1,8 @@
-"""DataAgent: 带护栏的自然语言查数 Agent。
+"""litmus: 带护栏的自然语言查数 Agent。
 
 设计主张：不是让 LLM 写 SQL，而是让它在写错的时候知道自己是错的。
+
+（2026-10-26 由 dataagent 改名；核心类为 LitmusAgent。）
 """
 
 __version__ = "0.1.0"

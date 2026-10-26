@@ -11,8 +11,8 @@ import sqlite3
 
 import pytest
 
-from dataagent.sandbox import Sandbox
-from dataagent.tools import ToolBox
+from litmus.sandbox import Sandbox
+from litmus.tools import ToolBox
 
 
 @pytest.fixture()

@@ -98,7 +98,12 @@ def validate_sql(sql: str, allowed_tables: set[str] | None = None) -> str:
 
     try:
         statements = sqlglot.parse(text, read="sqlite")
-    except sqlglot.errors.ParseError as exc:
+    except sqlglot.errors.SqlglotError as exc:
+        # 必须捕获 SqlglotError 基类而不是 ParseError：TokenError 不是它的子类。
+        # 实测（2026-10-26 跑 60 题评测）模型给过
+        # `strftime('%Y-%m-%d', order_estimated_delivery_date`——少一个右括号——
+        # 分词阶段就抛 TokenError，绕过这里直接崩掉了整个评测进程，34 题记录全丢。
+        # 闸门的职责是把坏 SQL 变成一次 tool 错误喂回模型，绝不能放它炸穿 agent 循环。
         raise SQLBlocked(f"SQL 解析失败：{exc}", "syntax") from exc
 
     parsed = [s for s in statements if s is not None]

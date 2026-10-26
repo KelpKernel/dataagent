@@ -26,9 +26,9 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from dataagent.config import Config  # noqa: E402
-from dataagent.sandbox import Sandbox  # noqa: E402
-from dataagent.verify import collect_from_values, numbers_in  # noqa: E402
+from litmus.config import Config  # noqa: E402
+from litmus.sandbox import Sandbox  # noqa: E402
+from litmus.verify import collect_from_values, numbers_in  # noqa: E402
 
 
 def load_questions(path: Path) -> list[dict]:
@@ -95,7 +95,7 @@ def main() -> int:
     parser.add_argument("--tag", help="结果文件名标记，例如 flash-v030")
     parser.add_argument(
         "--work-dir",
-        help="trace 与缓存目录，默认 .dataagent；对照实验要用独立目录，否则 trace 混在一起",
+        help="trace 与缓存目录，默认 .litmus；对照实验要用独立目录，否则 trace 混在一起",
     )
     parser.add_argument("--max-steps", type=int, default=8)
     parser.add_argument("--out", default=str(ROOT / "evals" / "results"))
@@ -125,10 +125,14 @@ def main() -> int:
         print(f"[gold] {item['id']:<4} {kind:<6} {preview}")
 
     if not args.gold_only:
-        from dataagent.agent import DataAgent
+        from litmus.agent import LitmusAgent
 
-        agent = DataAgent(config)
+        agent = LitmusAgent(config)
         records = []
+        # 时间戳与进度文件提前到循环前，供逐题落盘使用
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        suffix = f"-{args.tag}" if args.tag else ""
+        progress_file = out_dir / f"run-{stamp}{suffix}.jsonl"
         try:
             for item in questions:
                 kind, gold_values, primary_values = golds[item["id"]]
@@ -154,6 +158,11 @@ def main() -> int:
                     "unsourced": result.unsourced,
                 }
                 records.append(record)
+                # 逐题落盘（JSONL）。跑 60 题要几十分钟，中途任何异常都不该
+                # 把已完成的结果一起丢掉——2026-10-26 一次 TokenError 崩掉，
+                # 前面 34 题的记录全没了（当时只在循环结束后才写 json）。
+                with progress_file.open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(record, ensure_ascii=False) + "\n")
                 flag = "✓" if correct else "✗"
                 print(
                     f"{flag} {item['id']:<4} {item['difficulty']:<9} "
@@ -163,8 +172,6 @@ def main() -> int:
         finally:
             agent.close()
 
-        stamp = time.strftime("%Y%m%d-%H%M%S")
-        suffix = f"-{args.tag}" if args.tag else ""
         out_file = out_dir / f"run-{stamp}{suffix}.json"
         summary = {
             "model": config.model,

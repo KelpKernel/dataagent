@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from dataagent.verify import numbers_in, unsourced_numbers
+from litmus.verify import numbers_in, unsourced_numbers
 
 
 @pytest.mark.parametrize(

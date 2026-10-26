@@ -8,4 +8,4 @@ if not exist "%~dp0.venv\Scripts\python.exe" (
   echo   uv pip install --python .venv\Scripts\python.exe -r requirements.txt
   exit /b 1
 )
-"%~dp0.venv\Scripts\python.exe" -m dataagent.cli %*
+"%~dp0.venv\Scripts\python.exe" -m litmus.cli %*

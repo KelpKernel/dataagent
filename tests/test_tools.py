@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataagent.sandbox import QueryResult
-from dataagent.tools import self_check
+from litmus.sandbox import QueryResult
+from litmus.tools import self_check
 
 
 def _ok(rows, columns=("v",)) -> QueryResult:

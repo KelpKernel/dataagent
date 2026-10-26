@@ -22,7 +22,7 @@ def _setup_console() -> None:
 
 
 def _config(args):
-    from dataagent.config import Config
+    from litmus.config import Config
 
     prompt = getattr(args, "prompt", None)
     return Config.from_env(
@@ -39,13 +39,13 @@ def _config(args):
 
 
 def _add_common(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--db", help="SQLite 数据库路径（默认读 DATAAGENT_DB）")
-    parser.add_argument("--work-dir", help="trace 与缓存目录，默认 .dataagent")
+    parser.add_argument("--db", help="SQLite 数据库路径（默认读 LITMUS_DB）")
+    parser.add_argument("--work-dir", help="trace 与缓存目录，默认 .litmus")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="dataagent", description="带护栏的自然语言查数 Agent"
+        prog="litmus", description="带护栏的自然语言查数 Agent"
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     config = _config(args)
 
-    from dataagent.config import is_demo_db
+    from litmus.config import is_demo_db
 
     if is_demo_db(config.db_path):
         print(
@@ -87,8 +87,8 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     if args.cmd == "schema":
-        from dataagent.sandbox import Sandbox
-        from dataagent.schema import build_schema_text
+        from litmus.sandbox import Sandbox
+        from litmus.schema import build_schema_text
 
         sandbox = Sandbox(config.db_path)
         print(build_schema_text(sandbox.connect()))
@@ -96,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "sql":
-        from dataagent.sandbox import Sandbox
+        from litmus.sandbox import Sandbox
 
         sandbox = Sandbox(
             config.db_path, row_limit=args.row_limit, timeout_s=args.timeout
@@ -112,16 +112,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if result.ok else 1
 
     # ask
-    from dataagent.agent import DataAgent
+    from litmus.agent import LitmusAgent
 
     if not config.api_key:
         print(
-            "缺少 API key：复制 .env.example 为 .env 并填 DATAAGENT_API_KEY",
+            "缺少 API key：复制 .env.example 为 .env 并填 LITMUS_API_KEY",
             file=sys.stderr,
         )
         return 2
 
-    agent = DataAgent(config, verbose=args.verbose)
+    agent = LitmusAgent(config, verbose=args.verbose)
     try:
         if args.max_steps:
             agent.config.max_steps = args.max_steps
@@ -137,6 +137,10 @@ def main(argv: list[str] | None = None) -> int:
         f"(in {result.usage.prompt_tokens}/out {result.usage.completion_tokens})  "
         f"cost=¥{result.usage.cost:.4f}  run_id={result.run_id}"
     )
+    if result.state:
+        # v0.4.0 起答案带显式状态前缀，这里单独报一行，方便一眼分清
+        # 「查完了」/「不敢保证」/「没查成」。
+        print(f"--- 状态: {result.state}")
     if result.error_kinds:
         print(f"--- 失败标记: {', '.join(result.error_kinds)}")
     if result.unsourced:

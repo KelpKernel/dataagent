@@ -1,6 +1,6 @@
-# DataAgent
+# litmus
 
-[![CI](https://github.com/KelpKernel/dataagent/actions/workflows/ci.yml/badge.svg)](https://github.com/KelpKernel/dataagent/actions/workflows/ci.yml)
+[![CI](https://github.com/KelpKernel/litmus/actions/workflows/ci.yml/badge.svg)](https://github.com/KelpKernel/litmus/actions/workflows/ci.yml)
 
 **不是让 LLM 写 SQL，而是让它在写错的时候知道自己是错的。**
 
@@ -67,7 +67,7 @@ uv pip install --python .venv\Scripts\python.exe -r requirements.txt
 .\run.cmd sql "select order_status, count(*) n from orders group by 1 order by n desc limit 5"
 
 # 第二步：要用真模型提问，再配一个 key
-copy .env.example .env      # 只填 DATAAGENT_API_KEY，DATAAGENT_DB 可留空
+copy .env.example .env      # 只填 LITMUS_API_KEY，LITMUS_DB 可留空
 .\run.cmd ask "被取消的订单占比是多少？" -v
 
 # 可选：换模型 / 换提示词版本（复现历史实验）
@@ -87,7 +87,7 @@ python evals\recompute.py --file *.json        # 改判对口径后离线重算�
 > 并保证引用完整性（零孤儿行）。目的是让 clone 下来的人不用找数据就能看到它工作。
 >
 > **数字与文章里的不同**：这里订单数是 5,108，不是 99,441。60 题评测集的金标准基于
-> 完整库，所以跑评测必须用完整库（`--db` 或 `DATAAGENT_DB`）。CLI 检测到演示库时会打提示。
+> 完整库，所以跑评测必须用完整库（`--db` 或 `LITMUS_DB`）。CLI 检测到演示库时会打提示。
 >
 > 重新抽样：`python scripts/make_demo_db.py --src <完整库路径>`（`--prefix-max 0a` 可更小）。
 
@@ -99,12 +99,12 @@ python evals\recompute.py --file *.json        # 改判对口径后离线重算�
 ```json
 {
   "mcpServers": {
-    "dataagent": {
+    "litmus": {
       "command": "python",
-      "args": ["-m", "dataagent.mcp_server"],
+      "args": ["-m", "litmus.mcp_server"],
       "env": {
         "PYTHONPATH": "<仓库路径>/src",
-        "DATAAGENT_DB": "<可选：留空则用自带演示库>"
+        "LITMUS_DB": "<可选：留空则用自带演示库>"
       }
     }
   }
@@ -123,12 +123,12 @@ python evals\recompute.py --file *.json        # 改判对口径后离线重算�
 | `schema_overview` | 一次拿到全部表结构（列注释 + 样例值），省掉逐表 describe |
 | `run_sql` | 只读单条 SELECT，带 AST 校验 / 行数上限 / 超时 |
 | `list_tables` / `describe_table` / `sample_rows` | 需要细看时再调 |
-| `ask` | **只在配了 API key 时出现**：让 DataAgent 自己跑完整闭环 |
+| `ask` | **只在配了 API key 时出现**：让 litmus 自己跑完整闭环 |
 
-真实会话长这样（`python -m dataagent.mcp_server` 子进程）：
+真实会话长这样（`python -m litmus.mcp_server` 子进程）：
 
 ```
-[initialize] protocol=2024-11-05 server=dataagent v0.1.0
+[initialize] protocol=2024-11-05 server=litmus v0.1.0
 [tools/list] 5 个工具
 [run_sql]     order_status | n          ← 正常查询
               delivered    | 4975

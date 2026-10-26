@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataagent.llm import _clean_content
+from litmus.llm import _clean_content
 
 
 def test_strips_stream_delta_residue():

@@ -6,7 +6,7 @@ import sqlite3
 
 import pytest
 
-from dataagent.sandbox import Sandbox, SQLBlocked, validate_sql
+from litmus.sandbox import Sandbox, SQLBlocked, validate_sql
 
 
 @pytest.fixture()

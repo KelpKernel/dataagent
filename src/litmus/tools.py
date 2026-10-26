@@ -22,8 +22,8 @@ from typing import Any
 import sqlglot
 from sqlglot import exp
 
-from dataagent.sandbox import QueryResult, Sandbox
-from dataagent.schema import build_schema_text, quote_ident, table_columns
+from litmus.sandbox import QueryResult, Sandbox
+from litmus.schema import build_schema_text, quote_ident, table_columns
 
 TOOLS: list[dict[str, Any]] = [
     {

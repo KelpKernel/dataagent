@@ -15,7 +15,7 @@
 
 用法：
   python evals/analyze_trace.py
-  python evals/analyze_trace.py --trace .dataagent/trace.sqlite --detail
+  python evals/analyze_trace.py --trace .litmus/trace.sqlite --detail
 """
 
 from __future__ import annotations
@@ -186,7 +186,7 @@ def report(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--trace", default=str(ROOT / ".dataagent" / "trace.sqlite"))
+    parser.add_argument("--trace", default=str(ROOT / ".litmus" / "trace.sqlite"))
     parser.add_argument("--detail", action="store_true", help="打印逐条运行明细")
     args = parser.parse_args()
 

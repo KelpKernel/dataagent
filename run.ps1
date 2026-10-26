@@ -6,4 +6,4 @@ if (-not (Test-Path $python)) {
     Write-Error "venv not found. Run: uv venv .venv --python 3.13; uv pip install --python .venv\Scripts\python.exe -r requirements.txt"
     exit 1
 }
-& $python -m dataagent.cli @args
+& $python -m litmus.cli @args

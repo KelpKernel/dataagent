@@ -11,12 +11,12 @@ import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from dataagent import PROMPT_VERSION
+from litmus import PROMPT_VERSION
 
 DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4"
 DEFAULT_MODEL = "glm-4-flash"
 
-# 仓库里自带的演示库（5.1k 订单 / 7 MB）。没配 DATAAGENT_DB 时用它，
+# 仓库里自带的演示库（5.1k 订单 / 7 MB）。没配 LITMUS_DB 时用它，
 # 这样 clone 下来不填任何东西也能跑通。
 DEMO_DB = Path(__file__).resolve().parents[2] / "data" / "demo.sqlite"
 
@@ -25,7 +25,7 @@ DEMO_DB = Path(__file__).resolve().parents[2] / "data" / "demo.sqlite"
 PROVIDERS: dict[str, dict] = {
     "zhipu": {
         "base_url": "https://open.bigmodel.cn/api/paas/v4",
-        "api_key_env": "DATAAGENT_API_KEY",
+        "api_key_env": "LITMUS_API_KEY",
         "models": ("glm-4-flash", "glm-4-flash-250414", "glm-4-air", "glm-4-plus"),
     },
     "deepseek": {
@@ -68,17 +68,17 @@ def is_demo_db(db_path: str | Path) -> bool:
 
 
 def resolve_endpoint(model: str) -> tuple[str, str]:
-    """按模型名解析 (base_url, api_key)；未注册的模型走 DATAAGENT_* 环境变量。
+    """按模型名解析 (base_url, api_key)；未注册的模型走 LITMUS_* 环境变量。
 
-    注意：不能用 DATAAGENT_BASE_URL 覆盖已注册 provider 的 base_url，
+    注意：不能用 LITMUS_BASE_URL 覆盖已注册 provider 的 base_url，
     否则 .env 里为智谱写的 base_url 会把 DeepSeek 的请求也发到智谱去。
     """
     for spec in PROVIDERS.values():
         if model in spec["models"]:
-            return spec["base_url"], os.environ.get(spec["api_key_env"], "")
+            return spec["base_url"], _env(spec["api_key_env"])
     return (
-        os.environ.get("DATAAGENT_BASE_URL", DEFAULT_BASE_URL),
-        os.environ.get("DATAAGENT_API_KEY", ""),
+        _env("LITMUS_BASE_URL", DEFAULT_BASE_URL),
+        _env("LITMUS_API_KEY"),
     )
 
 
@@ -92,6 +92,28 @@ def load_dotenv(path: Path) -> None:
             continue
         key, value = line.split("=", 1)
         os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+# 2026-10-26 项目由 dataagent 改名为 litmus。旧环境变量名继续认，
+# 新名优先：这样已经写好的 .env、CI secret、外部脚本不会一次性失效，
+# 而新代码只需要知道 LITMUS_*。
+_LEGACY_ENV: dict[str, str] = {
+    "LITMUS_API_KEY": "DATAAGENT_API_KEY",
+    "LITMUS_BASE_URL": "DATAAGENT_BASE_URL",
+    "LITMUS_MODEL": "DATAAGENT_MODEL",
+    "LITMUS_DB": "DATAAGENT_DB",
+}
+
+
+def _env(name: str, default: str = "") -> str:
+    """读环境变量，找不到时回退到改名前的 DATAAGENT_* 旧名。"""
+    value = os.environ.get(name)
+    if value:
+        return value
+    legacy = _LEGACY_ENV.get(name)
+    if legacy:
+        return os.environ.get(legacy, default)
+    return default
 
 
 @dataclass(slots=True)
@@ -108,7 +130,7 @@ class Config:
     query_timeout_s: float = 15.0
 
     # 产出目录：trace 与 LLM 缓存都落在这里，方便事后做统计分析
-    work_dir: Path = field(default_factory=lambda: Path(".dataagent"))
+    work_dir: Path = field(default_factory=lambda: Path(".litmus"))
     prompt_version: str = PROMPT_VERSION
     use_cache: bool = True
     # v0.3.0 起的强制反思干预；复现 v0.2.0 基线时关掉
@@ -129,16 +151,16 @@ class Config:
     def from_env(cls, db_path: str | Path | None = None, **overrides) -> "Config":
         load_dotenv(Path(".env"))
         # 优先级：--db 参数 > 环境变量/.env > 仓库自带演示库
-        resolved_db = db_path or os.environ.get("DATAAGENT_DB") or ""
+        resolved_db = db_path or _env("LITMUS_DB") or ""
         if not resolved_db:
             if not DEMO_DB.exists():
                 raise ValueError(
-                    "缺少数据库路径：用 --db 指定，或设置 DATAAGENT_DB。"
+                    "缺少数据库路径：用 --db 指定，或设置 LITMUS_DB。"
                     f"仓库自带演示库也不存在（{DEMO_DB}）。"
                 )
             resolved_db = str(DEMO_DB)
-        model = overrides.get("model") or os.environ.get(
-            "DATAAGENT_MODEL", DEFAULT_MODEL
+        model = overrides.get("model") or _env(
+            "LITMUS_MODEL", DEFAULT_MODEL
         )
         base_url, api_key = resolve_endpoint(model)
         params = {

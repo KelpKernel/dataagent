@@ -19,7 +19,7 @@ from typing import Any
 
 import httpx
 
-from dataagent.config import Config
+from litmus.config import Config
 
 _RETRY_STATUS = {408, 409, 429, 500, 502, 503, 504}
 
@@ -63,7 +63,7 @@ class LLMClient:
     def __init__(self, config: Config, *, min_interval_s: float = 0.0) -> None:
         if not config.api_key:
             raise LLMError(
-                "缺少 API key：在 .env 里设置 DATAAGENT_API_KEY（或换 --model 前先配好 key）"
+                "缺少 API key：在 .env 里设置 LITMUS_API_KEY（或换 --model 前先配好 key）"
             )
         self.config = config
         self.min_interval_s = min_interval_s

@@ -1,4 +1,4 @@
-"""把 DataAgent 的护栏化 SQL 工具暴露成一个 MCP server（stdio）。
+"""把 LitmusAgent 的护栏化 SQL 工具暴露成一个 MCP server（stdio）。
 
 为什么不是"把整个 agent 包成 MCP"：
 宿主（Claude Desktop / Cursor / Reasonix）本身就是模型，它已经在做规划和推理了。
@@ -6,7 +6,7 @@
 所以这里暴露的是**能力**（只读沙箱 + schema 探索），规划交给宿主。
 
 `ask` 工具仍然提供，但只在配了 API key 时才出现在 tools/list 里——
-它的用途是"宿主不想自己写 SQL，直接让 DataAgent 跑完整闭环"。
+它的用途是"宿主不想自己写 SQL，直接让 LitmusAgent 跑完整闭环"。
 
 实现取舍：
 - 零第三方依赖（手写 JSON-RPC 2.0 over stdio），启动快、不用 pip install
@@ -14,7 +14,7 @@
 - stdio 传输是"一行一个 JSON"，不是 LSP 的 Content-Length 头
 
 用法（宿主里配）：
-  {"command": "python", "args": ["-m", "dataagent.mcp_server"], "env": {"DATAAGENT_DB": "..."}}
+  {"command": "python", "args": ["-m", "litmus.mcp_server"], "env": {"LITMUS_DB": "..."}}
 """
 
 from __future__ import annotations
@@ -23,18 +23,18 @@ import json
 import sys
 from typing import Any
 
-from dataagent import PROMPT_VERSION, __version__
-from dataagent.config import Config, is_demo_db
-from dataagent.sandbox import Sandbox
-from dataagent.tools import TOOLS, ToolBox, default_schema_text
+from litmus import PROMPT_VERSION, __version__
+from litmus.config import Config, is_demo_db
+from litmus.sandbox import Sandbox
+from litmus.tools import TOOLS, ToolBox, default_schema_text
 
 PROTOCOL_VERSION = "2024-11-05"
-SERVER_NAME = "dataagent"
+SERVER_NAME = "litmus"
 
 
 def log(message: str) -> None:
     """日志一律走 stderr——stdout 被协议占用。"""
-    print(f"[dataagent-mcp] {message}", file=sys.stderr, flush=True)
+    print(f"[litmus-mcp] {message}", file=sys.stderr, flush=True)
 
 
 def _mcp_tools(include_ask: bool) -> list[dict[str, Any]]:
@@ -63,7 +63,7 @@ def _mcp_tools(include_ask: bool) -> list[dict[str, Any]]:
             {
                 "name": "ask",
                 "description": (
-                    "用自然语言提问，由 DataAgent 自己规划并执行 SQL（需要配置 API key）。"
+                    "用自然语言提问，由 LitmusAgent 自己规划并执行 SQL（需要配置 API key）。"
                     "如果你（宿主模型）愿意自己写 SQL，用 run_sql 更省一次调用。"
                 ),
                 "inputSchema": {
@@ -79,7 +79,7 @@ def _mcp_tools(include_ask: bool) -> list[dict[str, Any]]:
     return tools
 
 
-class DataAgentServer:
+class LitmusAgentServer:
     def __init__(self, db_path: str | None = None) -> None:
         self.config = Config.from_env(db_path)
         self.sandbox = Sandbox(
@@ -116,14 +116,14 @@ class DataAgentServer:
                 "content": [
                     {
                         "type": "text",
-                        "text": "ask 需要 DATAAGENT_API_KEY。要么配上它，要么改用 run_sql 自己写 SQL。",
+                        "text": "ask 需要 LITMUS_API_KEY。要么配上它，要么改用 run_sql 自己写 SQL。",
                     }
                 ],
                 "isError": True,
             }
-        from dataagent.agent import DataAgent
+        from litmus.agent import LitmusAgent
 
-        agent = DataAgent(self.config, sandbox=self.sandbox)
+        agent = LitmusAgent(self.config, sandbox=self.sandbox)
         try:
             result = agent.run(question)
         finally:
@@ -230,11 +230,11 @@ def main(argv: list[str] | None = None) -> int:
     db_path = None
     if argv:
         if argv[0] in ("-h", "--help"):
-            print("用法：python -m dataagent.mcp_server [数据库路径]", file=sys.stderr)
+            print("用法：python -m litmus.mcp_server [数据库路径]", file=sys.stderr)
             return 0
         db_path = argv[0]
     try:
-        server = DataAgentServer(db_path)
+        server = LitmusAgentServer(db_path)
     except Exception as exc:
         log(f"启动失败：{exc}")
         return 1
