@@ -33,6 +33,20 @@ PROVIDERS: dict[str, dict] = {
         "api_key_env": "DEEPSEEK_API_KEY",
         "models": ("deepseek-chat", "deepseek-reasoner", "deepseek-flash"),
     },
+    # 本地推理：Ollama 的 OpenAI 兼容端点（/v1）。
+    # ollama 不校验 key，LLMClient 对回环地址跳过 key 非空检查，这里留一个空变量名占位。
+    # 用途见 docs/experiment-local-model.md：拿 R1 蒸馏版跑同一套 60 题，
+    # 对照"小模型 + 强护栏"和"大模型 + 弱护栏"。
+    "local": {
+        "base_url": "http://127.0.0.1:11434/v1",
+        "api_key_env": "LITMUS_LOCAL_API_KEY",
+        "models": (
+            "deepseek-r1:7b",
+            "deepseek-r1:14b",
+            "deepseek-r1:1.5b",
+            "qwen2.5:7b",
+        ),
+    },
 }
 
 # 每 1K token 单价（人民币元）。免费模型记 0。

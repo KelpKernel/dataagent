@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -22,6 +23,14 @@ import httpx
 from litmus.config import Config
 
 _RETRY_STATUS = {408, 409, 429, 500, 502, 503, 504}
+
+# 本地推理端点（ollama / llama.cpp / LM Studio）共用的回环地址前缀
+_LOOPBACK_PREFIXES = ("http://127.0.0.1", "http://localhost", "http://[::1]")
+
+
+def _is_loopback(base_url: str) -> bool:
+    """本地端点不校验 key，据此跳过强制 key 检查。"""
+    return (base_url or "").lower().startswith(_LOOPBACK_PREFIXES)
 
 
 @dataclass(slots=True)
@@ -61,7 +70,9 @@ class LLMError(RuntimeError):
 
 class LLMClient:
     def __init__(self, config: Config, *, min_interval_s: float = 0.0) -> None:
-        if not config.api_key:
+        # 本地推理端点（Ollama 等）不校验 key，用回环地址判断而不是给模型名开白名单，
+        # 这样以后换 llama.cpp / LM Studio 只要也是 127.0.0.1 就不用改代码。
+        if not config.api_key and not _is_loopback(config.base_url):
             raise LLMError(
                 "缺少 API key：在 .env 里设置 LITMUS_API_KEY（或换 --model 前先配好 key）"
             )
@@ -161,19 +172,30 @@ class LLMClient:
         self._last_call = time.monotonic()
 
 
-def _clean_content(text: str) -> str:
-    """清洗疑似流式 delta 残渣。
+# 推理模型（R1 蒸馏版、QwQ 等）会在正文前输出思考块，形式有  thinking、<thinking>、
+# <reasoning> 几种。必须剥掉再进入答案，否则 litmus 的数字溯源会把思考过程里的
+# 中间算式（"625/99441 ≈ 6.25%"）当成答案内容，一路误报 unverified。
+_THINK_BLOCK = re.compile(r"<(think|thinking|reasoning)>.*?</\1>", re.S | re.I)
+# 少数情况块没闭合（被 max_tokens 截断），只能砍到末尾
+_THINK_OPEN = re.compile(r"<(think|thinking|reasoning)>.*\Z", re.S | re.I)
 
-    智谱在 tool_calls 响应里会把 `{"index":0,"finish_reason":...}` 这类
-    流式结构塞进 message.content，直接保留会污染最终答案，也会让数字溯源
-    把 JSON 里的数字当成"答案内容"。实测这条脏数据能把答案变成
-    "…我接下来要走的是{"index":0,...}"。
+
+def _clean_content(text: str) -> str:
+    """清洗两类脏数据。两个坑都是实测踩出来的。
+
+    1. 推理模型的思考块：R1 蒸馏版会输出 `<think>` 包起来的草稿推理。直接保留会让
+       答案溯源去校验草稿里的数字，把本来正确的答案判成不可信。
+    2. 疑似流式 delta 残渣：智谱在 tool_calls 响应里会把
+       `{"index":0,"finish_reason":...}` 这类流式结构塞进 message.content，
+       实测这条脏数据能把答案变成 "…我接下来要走的是{"index":0,...}"。
     """
+    text = _THINK_BLOCK.sub("", text)
+    text = _THINK_OPEN.sub("", text)
     for marker in ('{"index":', '{"id":"call', '{"id": "call'):
         position = text.find(marker)
         if position > 0:
-            return text[:position].rstrip()
-    return text
+            return text[:position].strip()
+    return text.strip()
 
 
 def _parse_turn(data: dict, config: Config) -> AssistantTurn:
