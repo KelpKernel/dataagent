@@ -6,3 +6,5 @@ __pycache__/
 evals/results/
 *.sqlite
 *.sqlite-journal
+# 演示库要进仓库：clone 下来不填任何配置就能跑
+!data/demo.sqlite

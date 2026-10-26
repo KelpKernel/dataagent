@@ -23,10 +23,19 @@ def quote_ident(name: str) -> str:
 
 
 def list_tables(conn: sqlite3.Connection) -> list[str]:
+    """列出业务表。
+
+    `_` 开头的是内部表（例如演示库的 `_meta`），不进 schema 文档——
+    喂给模型的表越少越准，也不必让它知道抽样元信息。
+    """
     rows = conn.execute(
         "select name from sqlite_master where type='table' order by name"
     ).fetchall()
-    return [r[0] for r in rows if not r[0].startswith("sqlite_")]
+    return [
+        r[0]
+        for r in rows
+        if not r[0].startswith("sqlite_") and not r[0].startswith("_")
+    ]
 
 
 def table_columns(conn: sqlite3.Connection, table: str) -> list[tuple[str, str]]:

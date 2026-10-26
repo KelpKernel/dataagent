@@ -61,19 +61,35 @@ flowchart LR
 ```powershell
 uv venv .venv --python 3.13
 uv pip install --python .venv\Scripts\python.exe -r requirements.txt
-copy .env.example .env      # 填 API key 与 DATAAGENT_DB
 
-.\run.cmd schema                                              # 看喂给 LLM 的 schema（5.1 KB）
-.\run.cmd sql "select count(*) from orders"                   # 不走 LLM，验证护栏
-.\run.cmd ask "被取消的订单占比是多少？" -v                     # agent
-.\run.cmd ask "..." --model deepseek-chat --prompt v0.2.0      # 换模型 / 换提示词版本
+# 第一步：什么都不用配。仓库自带 7 MB 演示库（5,108 订单）
+.\run.cmd schema
+.\run.cmd sql "select order_status, count(*) n from orders group by 1 order by n desc limit 5"
 
+# 第二步：要用真模型提问，再配一个 key
+copy .env.example .env      # 只填 DATAAGENT_API_KEY，DATAAGENT_DB 可留空
+.\run.cmd ask "被取消的订单占比是多少？" -v
+
+# 可选：换模型 / 换提示词版本（复现历史实验）
+.\run.cmd ask "..." --model deepseek-chat --prompt v0.2.0
+
+# 评测相关（需要完整库，见下）
 python evals\run_eval.py --gold-only           # 只跑 60 条参考 SQL 生成金标准，不花钱
 python evals\run_eval.py --tag my-run          # 跑全量评测
 python evals\compare.py --a A.json --b B.json  # 配对 2x2 + 精确 McNemar
 python evals\analyze_trace.py --detail         # 护栏命中率与修复率
 python evals\recompute.py --file *.json        # 改判对口径后离线重算，不重跑模型
 ```
+
+> **关于仓库自带的演示库**（`data/demo.sqlite`，7 MB / 5,108 订单）
+>
+> 从完整 Olist 数据集按 `order_id` 前缀抽样 5.1% 得到，保留所有表、索引、列注释，
+> 并保证引用完整性（零孤儿行）。目的是让 clone 下来的人不用找数据就能看到它工作。
+>
+> **数字与文章里的不同**：这里订单数是 5,108，不是 99,441。60 题评测集的金标准基于
+> 完整库，所以跑评测必须用完整库（`--db` 或 `DATAAGENT_DB`）。CLI 检测到演示库时会打提示。
+>
+> 重新抽样：`python scripts/make_demo_db.py --src <完整库路径>`（`--prefix-max 0a` 可更小）。
 
 ## 结果：四个配置，60 题
 

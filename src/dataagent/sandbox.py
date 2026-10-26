@@ -167,7 +167,9 @@ class Sandbox:
                 "select name from sqlite_master where type='table'"
             ).fetchall()
             self._tables = {
-                r[0].lower() for r in rows if not r[0].startswith("sqlite_")
+                r[0].lower()
+                for r in rows
+                if not r[0].startswith("sqlite_") and not r[0].startswith("_")
             }
         return self._tables
 

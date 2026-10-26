@@ -77,6 +77,15 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     config = _config(args)
 
+    from dataagent.config import is_demo_db
+
+    if is_demo_db(config.db_path):
+        print(
+            "提示：正在使用仓库自带的演示库（5,108 订单 / 7 MB），"
+            "数字与完整数据集（99,441 订单）不同；跑 60 题评测请用 --db 指向完整库。",
+            file=sys.stderr,
+        )
+
     if args.cmd == "schema":
         from dataagent.sandbox import Sandbox
         from dataagent.schema import build_schema_text

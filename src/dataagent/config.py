@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import os
+import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -14,6 +15,10 @@ from dataagent import PROMPT_VERSION
 
 DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4"
 DEFAULT_MODEL = "glm-4-flash"
+
+# 仓库里自带的演示库（5.1k 订单 / 7 MB）。没配 DATAAGENT_DB 时用它，
+# 这样 clone 下来不填任何东西也能跑通。
+DEMO_DB = Path(__file__).resolve().parents[2] / "data" / "demo.sqlite"
 
 # provider 注册表：按模型名自动选 base_url 与 key 所在环境变量。
 # 做模型对照实验时只需 --model，不用手改 .env。
@@ -42,6 +47,24 @@ PRICE_TABLE: dict[str, tuple[float, float]] = {
     "deepseek-reasoner": (0.002, 0.008),
     "deepseek-flash": (0.002, 0.008),
 }
+
+
+def is_demo_db(db_path: str | Path) -> bool:
+    """判断是否为仓库自带的演示库。
+
+    演示库带一张 `_meta` 表（记录抽样规则），完整库没有。用它提示使用者
+    「这里的数字和文章里的 99,441 不一样」，避免拿 demo 结果去对照 60 题评测集。
+    """
+    try:
+        conn = sqlite3.connect(f"file:{Path(db_path).as_posix()}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return False
+    try:
+        return conn.execute("select value from _meta where key = 'note'").fetchone() is not None
+    except sqlite3.Error:
+        return False
+    finally:
+        conn.close()
 
 
 def resolve_endpoint(model: str) -> tuple[str, str]:
@@ -105,11 +128,15 @@ class Config:
     @classmethod
     def from_env(cls, db_path: str | Path | None = None, **overrides) -> "Config":
         load_dotenv(Path(".env"))
+        # 优先级：--db 参数 > 环境变量/.env > 仓库自带演示库
         resolved_db = db_path or os.environ.get("DATAAGENT_DB") or ""
         if not resolved_db:
-            raise ValueError(
-                "缺少数据库路径：用 --db 指定，或设置 DATAAGENT_DB / .env 中的 DATAAGENT_DB"
-            )
+            if not DEMO_DB.exists():
+                raise ValueError(
+                    "缺少数据库路径：用 --db 指定，或设置 DATAAGENT_DB。"
+                    f"仓库自带演示库也不存在（{DEMO_DB}）。"
+                )
+            resolved_db = str(DEMO_DB)
         model = overrides.get("model") or os.environ.get(
             "DATAAGENT_MODEL", DEFAULT_MODEL
         )

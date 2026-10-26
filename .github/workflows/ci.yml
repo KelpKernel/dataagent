@@ -29,6 +29,22 @@ jobs:
         # src/ 布局：不设 PYTHONPATH 会在收集阶段 import 失败（pytest 退出码 2）
         run: PYTHONPATH=src python -m pytest tests -q
 
+      - name: Demo database works out of the box
+        # 这条是 README 的承诺：clone 下来不配任何东西也能跑。
+        # 没有 .env、没有 DATAAGENT_DB，应该自动落到 data/demo.sqlite。
+        run: |
+          PYTHONPATH=src python -m dataagent.cli schema > /tmp/schema.txt
+          head -n 5 /tmp/schema.txt
+          if grep -q "^### _meta" /tmp/schema.txt; then
+            echo "内部表 _meta 不应出现在 schema 文档里"; exit 1
+          fi
+          PYTHONPATH=src python -m dataagent.cli sql \
+            "select count(*) as orders from orders" > /tmp/out.txt 2>/tmp/err.txt
+          cat /tmp/out.txt /tmp/err.txt
+          grep -q "5108" /tmp/out.txt
+          grep -q "演示库" /tmp/err.txt
+          echo "demo db OK: 5108 orders, no configuration needed"
+
       - name: Guardrail smoke test
         # 单测已覆盖，这里单独跑一遍是为了让"护栏"在 CI 日志里可见：
         # 写操作被拒、行数被截断、无限递归被超时中断。
