@@ -91,6 +91,54 @@ python evals\recompute.py --file *.json        # 改判对口径后离线重算�
 >
 > 重新抽样：`python scripts/make_demo_db.py --src <完整库路径>`（`--prefix-max 0a` 可更小）。
 
+## 当 MCP server 用（Claude Desktop / Cursor / Reasonix）
+
+同一个包里带一个 MCP server，**零第三方依赖**（手写 JSON-RPC 2.0 over stdio），
+宿主里配一段 JSON 就能用，不必 clone 整个项目再改代码。
+
+```json
+{
+  "mcpServers": {
+    "dataagent": {
+      "command": "python",
+      "args": ["-m", "dataagent.mcp_server"],
+      "env": {
+        "PYTHONPATH": "<仓库路径>/src",
+        "DATAAGENT_DB": "<可选：留空则用自带演示库>"
+      }
+    }
+  }
+}
+```
+
+拉起来之后，宿主里可以直接问「这个库里订单状态怎么分布」——模型自己调 `run_sql`。
+
+**设计取舍：这里暴露的是能力，不是 agent。**
+
+宿主本身就是模型，已经在做规划和推理了。再套一层 agent loop 只是多一次 LLM 调用、
+多一份延迟和成本。所以核心工具是：
+
+| 工具 | 用途 |
+|---|---|
+| `schema_overview` | 一次拿到全部表结构（列注释 + 样例值），省掉逐表 describe |
+| `run_sql` | 只读单条 SELECT，带 AST 校验 / 行数上限 / 超时 |
+| `list_tables` / `describe_table` / `sample_rows` | 需要细看时再调 |
+| `ask` | **只在配了 API key 时出现**：让 DataAgent 自己跑完整闭环 |
+
+真实会话长这样（`python -m dataagent.mcp_server` 子进程）：
+
+```
+[initialize] protocol=2024-11-05 server=dataagent v0.1.0
+[tools/list] 5 个工具
+[run_sql]     order_status | n          ← 正常查询
+              delivered    | 4975
+              canceled     | 32
+[run_sql]     [blocked] 只允许只读查询，拒绝 Delete   ← 写操作被 AST 闸门拦住
+```
+
+> **日志一律走 stderr。** stdout 被协议帧独占——混进一行日志，宿主就会断连。
+> 这条约束写进了测试（`test_stdout_stays_clean`）。
+
 ## 结果：四个配置，60 题
 
 | 配置 | 准确率 | easy | medium | hard | ambiguous | 平均步数 | 未收敛 | 成本 |
